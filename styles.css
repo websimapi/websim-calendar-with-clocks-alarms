@@ -314,6 +314,13 @@ header h1 {
     font-size: 1.6vh;
 }
 
+.recurring-label {
+    font-size: 1.4vh;
+    color: #4285f4;
+    font-style: italic;
+    margin-left: 5px;
+}
+
 /* Voice Mode Styles */
 .voice-button-container {
     position: absolute;
