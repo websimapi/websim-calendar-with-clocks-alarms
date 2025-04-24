@@ -327,6 +327,14 @@ function processVoiceCommand(command) {
     }
 }
 
+// Helper function for date formatting that respects local timezone
+function getLocalDateString(date) {
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
+
 // Alarm creation from voice
 function createAlarmFromVoice(command) {
     // Parameters to extract from voice command
@@ -388,6 +396,7 @@ function createAlarmFromVoice(command) {
                 if (hours < 12 && hours >= 7) {
                     // Don't adjust
                 } else if (hours < 7) {
+                    // Early morning hours - likely PM
                     hours += 12;
                 }
             }
@@ -410,29 +419,17 @@ function createAlarmFromVoice(command) {
     if (dayAfterTomorrowPattern.test(command)) {
         const dayAfterTomorrow = new Date();
         dayAfterTomorrow.setDate(dayAfterTomorrow.getDate() + 2);
-        // Format date as YYYY-MM-DD in local timezone instead of using toISOString() which uses UTC
-        const year = dayAfterTomorrow.getFullYear();
-        const month = (dayAfterTomorrow.getMonth() + 1).toString().padStart(2, '0');
-        const day = dayAfterTomorrow.getDate().toString().padStart(2, '0');
-        date = `${year}-${month}-${day}`;
+        date = getLocalDateString(dayAfterTomorrow);
     } 
     // Check for "tomorrow"
     else if (tomorrowPattern.test(command)) {
         const tomorrow = new Date();
         tomorrow.setDate(tomorrow.getDate() + 1);
-        // Format date as YYYY-MM-DD in local timezone
-        const year = tomorrow.getFullYear();
-        const month = (tomorrow.getMonth() + 1).toString().padStart(2, '0');
-        const day = tomorrow.getDate().toString().padStart(2, '0');
-        date = `${year}-${month}-${day}`;
+        date = getLocalDateString(tomorrow);
     } 
     // Check for "today"
     else if (todayPattern.test(command)) {
-        // Format date as YYYY-MM-DD in local timezone
-        const year = now.getFullYear();
-        const month = (now.getMonth() + 1).toString().padStart(2, '0');
-        const day = now.getDate().toString().padStart(2, '0');
-        date = `${year}-${month}-${day}`;
+        date = getLocalDateString(now);
     } 
     // Check for "next Monday", "this Tuesday", etc.
     else if (nextDayMatch = command.match(nextDayPattern)) {
@@ -457,12 +454,7 @@ function createAlarmFromVoice(command) {
         
         const targetDate = new Date();
         targetDate.setDate(now.getDate() + daysUntilTarget);
-        
-        // Format date as YYYY-MM-DD in local timezone
-        const year = targetDate.getFullYear();
-        const month = (targetDate.getMonth() + 1).toString().padStart(2, '0');
-        const day = targetDate.getDate().toString().padStart(2, '0');
-        date = `${year}-${month}-${day}`;
+        date = getLocalDateString(targetDate);
     }
     // Check for specific date like "January 15" or "December 25, 2023"
     else if (specificDateMatch = command.match(specificDatePattern)) {
@@ -484,12 +476,7 @@ function createAlarmFromVoice(command) {
         }
         
         const specifiedDate = new Date(year, month, day);
-        
-        // Format date as YYYY-MM-DD in local timezone
-        const specYear = specifiedDate.getFullYear();
-        const specMonth = (specifiedDate.getMonth() + 1).toString().padStart(2, '0');
-        const specDay = specifiedDate.getDate().toString().padStart(2, '0');
-        date = `${specYear}-${specMonth}-${specDay}`;
+        date = getLocalDateString(specifiedDate);
     }
     
     // Check for day of week mentions (for recurring alarms)
@@ -510,7 +497,7 @@ function createAlarmFromVoice(command) {
             const daysUntilTarget = (targetDay + 7 - now.getDay()) % 7;
             const nextOccurrence = new Date();
             nextOccurrence.setDate(now.getDate() + (daysUntilTarget === 0 ? 7 : daysUntilTarget));
-            date = `${nextOccurrence.getFullYear()}-${(nextOccurrence.getMonth() + 1).toString().padStart(2, '0')}-${nextOccurrence.getDate().toString().padStart(2, '0')}`;
+            date = getLocalDateString(nextOccurrence);
         }
     }
     
@@ -720,7 +707,7 @@ function createConfirmedAlarm(time, date, repeatType, weekdays, label) {
     
     // Add type-specific properties
     if (repeatType === "once") {
-        newAlarm.date = date || new Date().toISOString().split('T')[0]; // Default to today
+        newAlarm.date = date || getLocalDateString(new Date()); // Default to today using our helper
     } else if (repeatType === "custom" || repeatType === "weekly" || repeatType === "biweekly") {
         newAlarm.weekdays = weekdays;
         
@@ -820,4 +807,65 @@ function formatList(items) {
     
     const lastItem = items.pop();
     return `${items.join(', ')}, and ${lastItem}`;
+}
+
+// Check alarm with proper date comparison
+function checkAlarms() {
+    const now = new Date();
+    const currentHour = now.getHours().toString().padStart(2, '0');
+    const currentMinute = now.getMinutes().toString().padStart(2, '0');
+    const currentTimeString = `${currentHour}:${currentMinute}`;
+    
+    const currentDay = now.getDay(); // 0-6, Sunday-Saturday
+    const currentDate = now.getDate(); // Day of month (1-31)
+    const currentDateString = getLocalDateString(now); // Local YYYY-MM-DD
+    
+    alarms.forEach(alarm => {
+        if (!alarm.active || alarm.time !== currentTimeString || now.getSeconds() !== 0) {
+            return; // Skip this alarm if not active, not matching time, or not at 0 seconds
+        }
+        
+        // Check specific alarm types
+        let shouldTrigger = false;
+        
+        switch (alarm.type) {
+            case 'once':
+                shouldTrigger = alarm.date === currentDateString;
+                break;
+            case 'daily':
+                shouldTrigger = true;
+                break;
+            case 'weekly':
+                shouldTrigger = weekdays.includes(currentDay);
+                break;
+            case 'biweekly':
+                // For bi-weekly, check if this week matches the reference week
+                const start = new Date(now.getFullYear(), 0, 1);
+                const diff = now - start;
+                const oneWeek = 7 * 24 * 60 * 60 * 1000;
+                const weekNumber = Math.floor(diff / oneWeek);
+                shouldTrigger = alarm.referenceWeek === weekNumber % 2 && weekdays.includes(currentDay);
+                break;
+            case 'monthly':
+                shouldTrigger = alarm.dayOfMonth === currentDate;
+                break;
+            case 'custom':
+                shouldTrigger = alarm.weekdays.includes(currentDay);
+                break;
+        }
+        
+        if (shouldTrigger) {
+            // Trigger the alarm
+            triggerAlarm(alarm);
+        }
+    });
+}
+
+// Trigger the alarm
+function triggerAlarm(alarm) {
+    // Play the alarm sound
+    playAlarmSound();
+    
+    // Display the alarm notification
+    showAlarmNotification(alarm.label);
 }
