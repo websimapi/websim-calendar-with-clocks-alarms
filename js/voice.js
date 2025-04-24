@@ -410,17 +410,29 @@ function createAlarmFromVoice(command) {
     if (dayAfterTomorrowPattern.test(command)) {
         const dayAfterTomorrow = new Date();
         dayAfterTomorrow.setDate(dayAfterTomorrow.getDate() + 2);
-        date = dayAfterTomorrow.toISOString().split('T')[0];
+        // Format date as YYYY-MM-DD in local timezone instead of using toISOString() which uses UTC
+        const year = dayAfterTomorrow.getFullYear();
+        const month = (dayAfterTomorrow.getMonth() + 1).toString().padStart(2, '0');
+        const day = dayAfterTomorrow.getDate().toString().padStart(2, '0');
+        date = `${year}-${month}-${day}`;
     } 
     // Check for "tomorrow"
     else if (tomorrowPattern.test(command)) {
         const tomorrow = new Date();
         tomorrow.setDate(tomorrow.getDate() + 1);
-        date = tomorrow.toISOString().split('T')[0];
+        // Format date as YYYY-MM-DD in local timezone
+        const year = tomorrow.getFullYear();
+        const month = (tomorrow.getMonth() + 1).toString().padStart(2, '0');
+        const day = tomorrow.getDate().toString().padStart(2, '0');
+        date = `${year}-${month}-${day}`;
     } 
     // Check for "today"
     else if (todayPattern.test(command)) {
-        date = now.toISOString().split('T')[0];
+        // Format date as YYYY-MM-DD in local timezone
+        const year = now.getFullYear();
+        const month = (now.getMonth() + 1).toString().padStart(2, '0');
+        const day = now.getDate().toString().padStart(2, '0');
+        date = `${year}-${month}-${day}`;
     } 
     // Check for "next Monday", "this Tuesday", etc.
     else if (nextDayMatch = command.match(nextDayPattern)) {
@@ -445,7 +457,12 @@ function createAlarmFromVoice(command) {
         
         const targetDate = new Date();
         targetDate.setDate(now.getDate() + daysUntilTarget);
-        date = targetDate.toISOString().split('T')[0];
+        
+        // Format date as YYYY-MM-DD in local timezone
+        const year = targetDate.getFullYear();
+        const month = (targetDate.getMonth() + 1).toString().padStart(2, '0');
+        const day = targetDate.getDate().toString().padStart(2, '0');
+        date = `${year}-${month}-${day}`;
     }
     // Check for specific date like "January 15" or "December 25, 2023"
     else if (specificDateMatch = command.match(specificDatePattern)) {
@@ -467,7 +484,12 @@ function createAlarmFromVoice(command) {
         }
         
         const specifiedDate = new Date(year, month, day);
-        date = specifiedDate.toISOString().split('T')[0];
+        
+        // Format date as YYYY-MM-DD in local timezone
+        const specYear = specifiedDate.getFullYear();
+        const specMonth = (specifiedDate.getMonth() + 1).toString().padStart(2, '0');
+        const specDay = specifiedDate.getDate().toString().padStart(2, '0');
+        date = `${specYear}-${specMonth}-${specDay}`;
     }
     
     // Check for day of week mentions (for recurring alarms)
@@ -488,7 +510,7 @@ function createAlarmFromVoice(command) {
             const daysUntilTarget = (targetDay + 7 - now.getDay()) % 7;
             const nextOccurrence = new Date();
             nextOccurrence.setDate(now.getDate() + (daysUntilTarget === 0 ? 7 : daysUntilTarget));
-            date = nextOccurrence.toISOString().split('T')[0];
+            date = `${nextOccurrence.getFullYear()}-${(nextOccurrence.getMonth() + 1).toString().padStart(2, '0')}-${nextOccurrence.getDate().toString().padStart(2, '0')}`;
         }
     }
     
