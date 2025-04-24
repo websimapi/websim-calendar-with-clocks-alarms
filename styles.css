@@ -16,9 +16,29 @@ body {
     width: 100%;
     height: 100vh;
     margin: 0;
-    padding: 3vh 2vw;
+    padding: 2vh 2vw;
     display: flex;
     flex-direction: column;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 2vh;
+    padding: 1.5vh;
+    background-color: #4285f4;
+    color: white;
+    border-radius: 10px;
+}
+
+header h1 {
+    font-size: 3.5vh;
+}
+
+.main-content {
+    display: flex;
+    flex: 1;
+    gap: 2vw;
+    margin-bottom: 2vh;
 }
 
 /* Calendar Styles */
@@ -30,6 +50,7 @@ body {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     display: flex;
     flex-direction: column;
+    max-height: 70vh;
 }
 
 .calendar-header {
@@ -107,11 +128,12 @@ body {
     align-items: center;
     gap: 2vh;
     justify-content: center;
+    max-height: 70vh;
 }
 
 .analog-clock {
-    width: 35vh;
-    height: 35vh;
+    width: 30vh;
+    height: 30vh;
     position: relative;
     background-color: white;
     border-radius: 50%;
@@ -219,17 +241,19 @@ body {
     padding: 2vh 2vw;
     border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    max-height: 25vh;
+    overflow: hidden;
 }
 
 .alarm-container h2 {
     font-size: 2.5vh;
-    margin-bottom: 2vh;
+    margin-bottom: 1.5vh;
 }
 
 .alarm-form {
     display: flex;
     gap: 1vw;
-    margin-bottom: 2vh;
+    margin-bottom: 1.5vh;
 }
 
 #alarmTime {
@@ -251,7 +275,7 @@ body {
 }
 
 .alarms-list {
-    max-height: 20vh;
+    max-height: 15vh;
     overflow-y: auto;
 }
 
@@ -279,12 +303,12 @@ body {
 /* TV Screen Media Query */
 @media (min-width: 1200px) {
     .container {
-        padding: 4vh 3vw;
+        padding: 3vh 3vw;
     }
     
     .analog-clock {
-        width: 45vh;
-        height: 45vh;
+        width: 35vh;
+        height: 35vh;
     }
     
     #digital-time {
@@ -303,15 +327,15 @@ body {
     }
     
     .analog-clock {
-        width: 30vh;
-        height: 30vh;
+        width: 25vh;
+        height: 25vh;
     }
-}
-
-header {
     
-}
-
-header h1 {
+    .calendar-container, .alarm-container {
+        max-height: none;
+    }
     
+    .alarms-list {
+        max-height: 10vh;
+    }
 }
