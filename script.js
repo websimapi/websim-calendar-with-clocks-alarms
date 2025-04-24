@@ -48,36 +48,19 @@ function renderCalendar() {
     
     calendar.innerHTML = '';
     
-    // Calculate total days needed to display the month
+    // Add days from previous month
     const firstDayIndex = firstDay.getDay();
-    const daysInMonth = lastDay.getDate();
-    const totalDaysNeeded = firstDayIndex + daysInMonth;
-    
-    // Calculate how many days to show from previous month
-    // If we need more than 35 days, adjust to show only 5 rows (35 days)
-    let prevMonthDaysToShow = firstDayIndex;
-    if (totalDaysNeeded > 35) {
-        // Adjust by skipping some days from previous month
-        // This ensures we only show 5 rows while keeping all current month days
-        prevMonthDaysToShow = Math.max(0, 35 - daysInMonth);
-    }
-    
-    // Add days from previous month (may be reduced to fit in 5 rows)
     const prevLastDay = new Date(year, month, 0).getDate();
-    const startFromPrevMonth = prevLastDay - prevMonthDaysToShow + 1;
     
-    for (let i = 0; i < prevMonthDaysToShow; i++) {
+    for (let i = firstDayIndex; i > 0; i--) {
         const dayElement = document.createElement('div');
         dayElement.classList.add('day', 'other-month');
-        dayElement.textContent = startFromPrevMonth + i;
+        dayElement.textContent = prevLastDay - i + 1;
         calendar.appendChild(dayElement);
     }
     
     // Current month days
-    for (let i = 1; i <= daysInMonth; i++) {
-        // Only add up to what fits in 5 rows (35 days total)
-        if (calendar.children.length >= 35) break;
-        
+    for (let i = 1; i <= lastDay.getDate(); i++) {
         const dayElement = document.createElement('div');
         dayElement.classList.add('day');
         dayElement.textContent = i;
@@ -90,9 +73,9 @@ function renderCalendar() {
         calendar.appendChild(dayElement);
     }
     
-    // Next month days - only add enough to reach exactly 35 days (5 rows)
-    const remainingSlots = 35 - calendar.children.length;
-    for (let i = 1; i <= remainingSlots; i++) {
+    // Next month days
+    const nextDays = 42 - (firstDayIndex + lastDay.getDate());
+    for (let i = 1; i <= nextDays; i++) {
         const dayElement = document.createElement('div');
         dayElement.classList.add('day', 'other-month');
         dayElement.textContent = i;

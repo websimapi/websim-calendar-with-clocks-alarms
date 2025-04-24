@@ -114,6 +114,10 @@ header h1 {
     background-color: #f0f0f0;
 }
 
+.days > .day:nth-child(n+36):hover {
+    background-color: transparent;
+}
+
 .day.today {
     background-color: #4285f4;
     color: white;
