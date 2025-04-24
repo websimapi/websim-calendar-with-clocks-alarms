@@ -86,6 +86,7 @@ function renderCalendar() {
 // Analog Clock Functions
 function initializeAnalogClock() {
     const hourMarkers = document.querySelector('.hour-markers');
+    hourMarkers.innerHTML = ''; // Clear existing markers first
     
     // Create hour markers
     for (let i = 1; i <= 12; i++) {
@@ -93,7 +94,7 @@ function initializeAnalogClock() {
         marker.classList.add('hour-marker');
         const angle = (i * 30) - 90; // 30 degrees per hour, -90 to start at 12 o'clock
         const radians = angle * Math.PI / 180;
-        const radius = 85; // Adjusted position for better visibility
+        const radius = 42; // Position relative to clock size (percentage from center)
         
         marker.style.position = 'absolute';
         marker.style.top = `${50 + radius * Math.sin(radians)}%`;
