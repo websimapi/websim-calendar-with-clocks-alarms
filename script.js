@@ -3,6 +3,14 @@ let currentDate = new Date();
 let alarms = JSON.parse(localStorage.getItem('alarms')) || [];
 let alarmSound;
 
+// Voice recognition variables
+let recognition;
+let speechSynthesis = window.speechSynthesis;
+let voiceModeActive = false;
+let idleTimer;
+let isIdle = false;
+let isListening = false;
+
 // Initialize on document load
 document.addEventListener('DOMContentLoaded', () => {
     // Initialize calendar
@@ -31,6 +39,9 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Initialize audio context
     initAudioContext();
+
+    // Initialize voice mode
+    initVoiceMode();
 });
 
 // Calendar Functions
@@ -293,4 +304,239 @@ function playAlarmSound() {
         const sound = alarmSound();
         sound.start();
     }
+}
+
+// Voice Mode Functions
+function initVoiceMode() {
+    const voiceButton = document.getElementById('voiceMode');
+    const voiceStatus = document.getElementById('voiceStatus');
+    
+    // Check if browser supports speech recognition
+    if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        recognition = new SpeechRecognition();
+        recognition.continuous = true;
+        recognition.interimResults = false;
+        recognition.lang = 'en-US';
+        
+        voiceButton.addEventListener('click', toggleVoiceMode);
+        
+        // Set up recognition event handlers
+        recognition.onstart = () => {
+            isListening = true;
+            updateVoiceStatus();
+        };
+        
+        recognition.onend = () => {
+            if (voiceModeActive) {
+                recognition.start(); // Restart recognition if mode is still active
+            } else {
+                isListening = false;
+                updateVoiceStatus();
+            }
+        };
+        
+        recognition.onresult = handleSpeechResult;
+        
+        recognition.onerror = (event) => {
+            console.error('Speech recognition error:', event.error);
+            if (event.error === 'no-speech' && voiceModeActive) {
+                startIdleTimer();
+            }
+        };
+    } else {
+        voiceButton.disabled = true;
+        voiceStatus.textContent = 'Not supported in this browser';
+        console.error('Speech recognition not supported');
+    }
+}
+
+function toggleVoiceMode() {
+    const voiceButton = document.getElementById('voiceMode');
+    
+    voiceModeActive = !voiceModeActive;
+    
+    if (voiceModeActive) {
+        // Start voice recognition
+        voiceButton.classList.add('active');
+        isIdle = false;
+        try {
+            recognition.start();
+            showVoiceResponse("Voice mode activated. How can I help you?");
+            speak("Voice mode activated. How can I help you?");
+        } catch (error) {
+            console.error('Recognition start error:', error);
+        }
+        startIdleTimer();
+    } else {
+        // Stop voice recognition
+        voiceButton.classList.remove('active', 'listening', 'idle');
+        clearTimeout(idleTimer);
+        try {
+            recognition.stop();
+            showVoiceResponse("Voice mode deactivated.");
+            speak("Voice mode deactivated.");
+        } catch (error) {
+            console.error('Recognition stop error:', error);
+        }
+    }
+    
+    updateVoiceStatus();
+}
+
+function handleSpeechResult(event) {
+    const transcript = Array.from(event.results)
+        .map(result => result[0].transcript)
+        .join('');
+    
+    console.log('Speech recognized:', transcript);
+    
+    // Reset idle timer as we received speech
+    if (voiceModeActive) {
+        clearTimeout(idleTimer);
+        startIdleTimer();
+    }
+    
+    if (isIdle) {
+        // Check for wake word when in idle mode
+        if (transcript.toLowerCase().includes('websim') || 
+            transcript.toLowerCase().includes('web sim') ||
+            transcript.toLowerCase().includes('hey websim')) {
+            
+            isIdle = false;
+            updateVoiceStatus();
+            showVoiceResponse("I'm listening. How can I help you?");
+            speak("I'm listening. How can I help you?");
+            return;
+        }
+        // Ignore other speech when idle
+        return;
+    }
+    
+    // Process speech command
+    processVoiceCommand(transcript);
+}
+
+function processVoiceCommand(command) {
+    command = command.toLowerCase().trim();
+    
+    // Date query patterns
+    const datePatterns = [
+        /what (date|day) is (it|today)/i,
+        /what is today('s date)?/i,
+        /(tell me|what's) (the|today's) date/i,
+        /what day (of the week|of the month)? is it/i,
+        /what is the current date/i,
+        /today's date/i
+    ];
+    
+    // Format patterns
+    const formatPatterns = {
+        shortFormat: /(short|brief|simple) format/i,
+        longFormat: /(long|full|complete) format/i,
+        numericalFormat: /(numerical|number) format/i,
+        dayOfWeek: /(day of the week|weekday)/i,
+        monthYear: /(month and year|month year)/i
+    };
+    
+    // Check if command is asking for date
+    const isDateQuery = datePatterns.some(pattern => pattern.test(command));
+    
+    if (isDateQuery) {
+        const now = new Date();
+        let response = "";
+        let formattedDate = "";
+        
+        // Check for specific format requests
+        if (formatPatterns.shortFormat.test(command)) {
+            formattedDate = now.toLocaleDateString();
+            response = `Today's date in short format is ${formattedDate}.`;
+        } else if (formatPatterns.longFormat.test(command)) {
+            formattedDate = now.toLocaleDateString('en-US', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+            response = `Today's date in full format is ${formattedDate}.`;
+        } else if (formatPatterns.numericalFormat.test(command)) {
+            formattedDate = `${now.getMonth() + 1}/${now.getDate()}/${now.getFullYear()}`;
+            response = `Today's date in numerical format is ${formattedDate}.`;
+        } else if (formatPatterns.dayOfWeek.test(command)) {
+            formattedDate = now.toLocaleDateString('en-US', { weekday: 'long' });
+            response = `Today is ${formattedDate}.`;
+        } else if (formatPatterns.monthYear.test(command)) {
+            formattedDate = now.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+            response = `It's ${formattedDate}.`;
+        } else {
+            // Default format
+            formattedDate = now.toLocaleDateString('en-US', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+            response = `Today's date is ${formattedDate}.`;
+        }
+        
+        showVoiceResponse(response);
+        speak(response);
+    }
+}
+
+function speak(text) {
+    // Cancel any ongoing speech
+    speechSynthesis.cancel();
+    
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.volume = 1;
+    utterance.rate = 1;
+    utterance.pitch = 1;
+    
+    speechSynthesis.speak(utterance);
+}
+
+function startIdleTimer() {
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(() => {
+        if (voiceModeActive && !isIdle) {
+            isIdle = true;
+            updateVoiceStatus();
+            showVoiceResponse("I'm now in idle mode. Say 'Websim' to wake me up.");
+            speak("I'm now in idle mode. Say 'Websim' to wake me up.");
+        }
+    }, 10000); // 10 seconds
+}
+
+function updateVoiceStatus() {
+    const voiceButton = document.getElementById('voiceMode');
+    const voiceStatus = document.getElementById('voiceStatus');
+    
+    if (!voiceModeActive) {
+        voiceStatus.textContent = 'Inactive';
+        voiceButton.classList.remove('active', 'listening', 'idle');
+    } else if (isIdle) {
+        voiceStatus.textContent = 'Idle - Say "Websim" to wake';
+        voiceButton.classList.add('idle');
+        voiceButton.classList.remove('listening');
+    } else if (isListening) {
+        voiceStatus.textContent = 'Listening...';
+        voiceButton.classList.add('listening');
+        voiceButton.classList.remove('idle');
+    } else {
+        voiceStatus.textContent = 'Active';
+        voiceButton.classList.add('active');
+        voiceButton.classList.remove('listening', 'idle');
+    }
+}
+
+function showVoiceResponse(text) {
+    const responseEl = document.getElementById('voiceResponse');
+    responseEl.textContent = text;
+    responseEl.classList.add('active');
+    
+    // Hide after a few seconds
+    setTimeout(() => {
+        responseEl.classList.remove('active');
+    }, 5000);
 }
