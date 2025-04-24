@@ -58,12 +58,82 @@
         
         <div class="alarm-container">
             <h2>Alarms</h2>
-            <div class="alarm-form">
-                <input type="time" id="alarmTime">
-                <button id="setAlarm">Set Alarm</button>
-            </div>
+            <button id="createAlarm" class="create-alarm-button">Create Alarm</button>
             <div class="alarms-list" id="alarmsList">
                 <!-- Alarms will be added here -->
+            </div>
+        </div>
+
+        <!-- Alarm Creation Modal -->
+        <div id="alarmModal" class="alarm-modal">
+            <div class="alarm-modal-content">
+                <span class="close-modal">&times;</span>
+                <h2>Create New Alarm</h2>
+                
+                <div class="alarm-form">
+                    <div class="form-group">
+                        <label for="alarmTime">Time:</label>
+                        <input type="time" id="alarmTime" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Repeat:</label>
+                        <div class="repeat-options">
+                            <label>
+                                <input type="radio" name="repeatType" value="once" checked>
+                                Once
+                            </label>
+                            <label>
+                                <input type="radio" name="repeatType" value="daily">
+                                Daily
+                            </label>
+                            <label>
+                                <input type="radio" name="repeatType" value="weekly">
+                                Weekly
+                            </label>
+                            <label>
+                                <input type="radio" name="repeatType" value="biweekly">
+                                Bi-weekly
+                            </label>
+                            <label>
+                                <input type="radio" name="repeatType" value="monthly">
+                                Monthly
+                            </label>
+                            <label>
+                                <input type="radio" name="repeatType" value="custom">
+                                Custom
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div id="weekdaySelector" class="form-group hidden">
+                        <label>Days of week:</label>
+                        <div class="weekday-options">
+                            <label><input type="checkbox" name="weekday" value="0">Sun</label>
+                            <label><input type="checkbox" name="weekday" value="1">Mon</label>
+                            <label><input type="checkbox" name="weekday" value="2">Tue</label>
+                            <label><input type="checkbox" name="weekday" value="3">Wed</label>
+                            <label><input type="checkbox" name="weekday" value="4">Thu</label>
+                            <label><input type="checkbox" name="weekday" value="5">Fri</label>
+                            <label><input type="checkbox" name="weekday" value="6">Sat</label>
+                        </div>
+                    </div>
+                    
+                    <div id="dateSelector" class="form-group">
+                        <label for="alarmDate">Date (for one-time alarm):</label>
+                        <input type="date" id="alarmDate">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="alarmLabel">Label:</label>
+                        <input type="text" id="alarmLabel" placeholder="Alarm name (optional)">
+                    </div>
+                    
+                    <div class="form-buttons">
+                        <button id="cancelAlarm" class="cancel-button">Cancel</button>
+                        <button id="saveAlarm" class="save-button">Save Alarm</button>
+                    </div>
+                </div>
             </div>
         </div>
 
