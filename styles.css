@@ -119,6 +119,11 @@ header h1 {
     cursor: default;
 }
 
+.days > .day:nth-child(n+36):not(.other-month):hover {
+    background-image: linear-gradient(to bottom, #f0f0f0 50%, transparent 50%);
+    cursor: pointer;
+}
+
 .day.today {
     background-color: #4285f4;
     color: white;
