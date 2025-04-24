@@ -73,8 +73,10 @@ function renderCalendar() {
         calendar.appendChild(dayElement);
     }
     
-    // Next month days
-    const nextDays = 42 - (firstDayIndex + lastDay.getDate());
+    // Next month days - limit to 5 rows total (35 cells)
+    const totalCellsFilled = firstDayIndex + lastDay.getDate();
+    const nextDays = 35 - totalCellsFilled; // 5 rows × 7 days = 35 cells
+    
     for (let i = 1; i <= nextDays; i++) {
         const dayElement = document.createElement('div');
         dayElement.classList.add('day', 'other-month');
