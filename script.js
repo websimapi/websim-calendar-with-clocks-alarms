@@ -93,14 +93,12 @@ function initializeAnalogClock() {
         marker.classList.add('hour-marker');
         const angle = (i * 30) - 90; // 30 degrees per hour, -90 to start at 12 o'clock
         const radians = angle * Math.PI / 180;
-        const radius = 115; // Slightly less than the clock radius
+        const radius = 85; // Adjusted position for better visibility
         
         marker.style.position = 'absolute';
         marker.style.top = `${50 + radius * Math.sin(radians)}%`;
         marker.style.left = `${50 + radius * Math.cos(radians)}%`;
         marker.style.transform = 'translate(-50%, -50%)';
-        marker.style.fontSize = '16px';
-        marker.style.fontWeight = 'bold';
         marker.textContent = i;
         
         hourMarkers.appendChild(marker);
@@ -295,4 +293,3 @@ function playAlarmSound() {
         sound.start();
     }
 }
-

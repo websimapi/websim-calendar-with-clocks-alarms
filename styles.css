@@ -8,45 +8,59 @@
 body {
     background-color: #f5f5f5;
     color: #333;
+    height: 100vh;
+    overflow: hidden;
 }
 
 .container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 20px;
+    width: 100%;
+    height: 100vh;
+    margin: 0;
+    padding: 2vh 2vw;
+    display: flex;
+    flex-direction: column;
 }
 
 header {
     text-align: center;
-    margin-bottom: 30px;
-    padding: 15px;
+    margin-bottom: 2vh;
+    padding: 1.5vh;
     background-color: #4285f4;
     color: white;
     border-radius: 10px;
 }
 
+header h1 {
+    font-size: 3.5vh;
+}
+
 .main-content {
     display: flex;
-    flex-wrap: wrap;
-    gap: 30px;
-    margin-bottom: 30px;
+    flex: 1;
+    gap: 2vw;
+    margin-bottom: 2vh;
 }
 
 /* Calendar Styles */
 .calendar-container {
     flex: 1;
-    min-width: 300px;
     background-color: white;
     border-radius: 10px;
-    padding: 20px;
+    padding: 2vh 2vw;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
 }
 
 .calendar-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 20px;
+    margin-bottom: 2vh;
+}
+
+.calendar-header h2 {
+    font-size: 2.5vh;
 }
 
 .calendar-header button {
@@ -54,9 +68,9 @@ header {
     color: white;
     border: none;
     border-radius: 50%;
-    width: 30px;
-    height: 30px;
-    font-size: 18px;
+    width: 4vh;
+    height: 4vh;
+    font-size: 2vh;
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -68,25 +82,28 @@ header {
     grid-template-columns: repeat(7, 1fr);
     text-align: center;
     font-weight: bold;
-    margin-bottom: 10px;
-    padding: 10px 0;
+    margin-bottom: 1vh;
+    padding: 1vh 0;
     border-bottom: 1px solid #eee;
+    font-size: 1.8vh;
 }
 
 .days {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    gap: 5px;
+    gap: 0.5vh;
+    flex: 1;
 }
 
 .day {
-    height: 40px;
+    height: 5vh;
     display: flex;
     align-items: center;
     justify-content: center;
     border-radius: 50%;
     cursor: pointer;
     position: relative;
+    font-size: 1.8vh;
 }
 
 .day:hover {
@@ -105,20 +122,20 @@ header {
 /* Clock Styles */
 .clocks-container {
     flex: 1;
-    min-width: 300px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 30px;
+    gap: 2vh;
+    justify-content: center;
 }
 
 .analog-clock {
-    width: 250px;
-    height: 250px;
+    width: 35vh;
+    height: 35vh;
     position: relative;
     background-color: white;
     border-radius: 50%;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .clock-face {
@@ -127,14 +144,15 @@ header {
     position: relative;
     border-radius: 50%;
     overflow: hidden;
+    border: 1vh solid #4285f4;
 }
 
 .center-point {
     position: absolute;
     top: 50%;
     left: 50%;
-    width: 12px;
-    height: 12px;
+    width: 2vh;
+    height: 2vh;
     background-color: #333;
     border-radius: 50%;
     transform: translate(-50%, -50%);
@@ -150,32 +168,38 @@ header {
 }
 
 .hour-hand {
-    width: 8px;
-    height: 60px;
+    width: 1.2vh;
+    height: 10vh;
     background-color: #333;
     transform: translateX(-50%);
     z-index: 3;
 }
 
 .minute-hand {
-    width: 4px;
-    height: 90px;
+    width: 0.8vh;
+    height: 14vh;
     background-color: #666;
     transform: translateX(-50%);
     z-index: 2;
 }
 
 .second-hand {
-    width: 2px;
-    height: 100px;
+    width: 0.4vh;
+    height: 16vh;
     background-color: #f44336;
     transform: translateX(-50%);
     z-index: 1;
 }
 
+.hour-marker {
+    font-size: 2.5vh !important;
+    font-weight: bold;
+    color: #333;
+}
+
 .digital-clock {
     background-color: white;
-    padding: 20px;
+    padding: 2vh;
     border-radius: 10px;
     text-align: center;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -183,35 +207,41 @@ header {
 }
 
 #digital-time {
-    font-size: 40px;
+    font-size: 5vh;
     font-weight: bold;
-    margin-bottom: 10px;
+    margin-bottom: 1vh;
 }
 
 #digital-date {
-    font-size: 18px;
+    font-size: 2.2vh;
     color: #666;
 }
 
 /* Alarm Styles */
 .alarm-container {
     background-color: white;
-    padding: 20px;
+    padding: 2vh 2vw;
     border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
+.alarm-container h2 {
+    font-size: 2.5vh;
+    margin-bottom: 2vh;
+}
+
 .alarm-form {
     display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
+    gap: 1vw;
+    margin-bottom: 2vh;
 }
 
 #alarmTime {
-    padding: 10px;
+    padding: 1.5vh;
     border: 1px solid #ddd;
     border-radius: 5px;
     flex: 1;
+    font-size: 1.8vh;
 }
 
 #setAlarm {
@@ -219,12 +249,13 @@ header {
     color: white;
     border: none;
     border-radius: 5px;
-    padding: 10px 15px;
+    padding: 1.5vh 2vh;
     cursor: pointer;
+    font-size: 1.8vh;
 }
 
 .alarms-list {
-    max-height: 300px;
+    max-height: 20vh;
     overflow-y: auto;
 }
 
@@ -232,10 +263,11 @@ header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 10px;
-    margin-bottom: 5px;
+    padding: 1.5vh;
+    margin-bottom: 1vh;
     background-color: #f9f9f9;
     border-radius: 5px;
+    font-size: 1.8vh;
 }
 
 .delete-alarm {
@@ -243,14 +275,47 @@ header {
     color: white;
     border: none;
     border-radius: 5px;
-    padding: 5px 10px;
+    padding: 1vh 1.5vh;
     cursor: pointer;
+    font-size: 1.6vh;
 }
 
-/* Responsive design */
+/* TV Screen Media Query */
+@media (min-width: 1200px) {
+    .container {
+        padding: 3vh 3vw;
+    }
+    
+    header h1 {
+        font-size: 4vh;
+    }
+    
+    .analog-clock {
+        width: 45vh;
+        height: 45vh;
+    }
+    
+    .hour-marker {
+        font-size: 3vh !important;
+    }
+    
+    #digital-time {
+        font-size: 6vh;
+    }
+    
+    #digital-date {
+        font-size: 2.8vh;
+    }
+}
+
+/* Responsive design for smaller screens */
 @media (max-width: 768px) {
     .main-content {
         flex-direction: column;
     }
+    
+    .analog-clock {
+        width: 30vh;
+        height: 30vh;
+    }
 }
-
