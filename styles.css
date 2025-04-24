@@ -99,12 +99,13 @@ header h1 {
 .day {
     height: 5vh;
     display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
+    align-items: flex-start;
+    justify-content: flex-start;
+    padding: 0.5vh;
     cursor: pointer;
     position: relative;
     font-size: 1.8vh;
+    border-radius: 0;
 }
 
 .day:hover {
@@ -114,6 +115,7 @@ header h1 {
 .day.today {
     background-color: #4285f4;
     color: white;
+    border-radius: 0;
 }
 
 .day.other-month {
