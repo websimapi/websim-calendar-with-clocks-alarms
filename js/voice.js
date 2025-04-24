@@ -7,7 +7,7 @@ function initVoiceMode() {
     if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         recognition = new SpeechRecognition();
-        recognition.continuous = false; // Changed to false to prevent multiple recognitions
+        recognition.continuous = true;
         recognition.interimResults = false;
         recognition.lang = 'en-US';
         
@@ -20,20 +20,11 @@ function initVoiceMode() {
         };
         
         recognition.onend = () => {
-            isListening = false;
-            updateVoiceStatus();
-            
-            // Only restart if voice mode is still active and we're not processing a command
-            if (voiceModeActive && !isProcessingCommand) {
-                setTimeout(() => {
-                    if (voiceModeActive) {
-                        try {
-                            recognition.start();
-                        } catch (error) {
-                            console.error('Error restarting recognition:', error);
-                        }
-                    }
-                }, 250); // Small delay to prevent rapid restarts
+            if (voiceModeActive) {
+                recognition.start(); // Restart recognition if mode is still active
+            } else {
+                isListening = false;
+                updateVoiceStatus();
             }
         };
         
@@ -41,24 +32,8 @@ function initVoiceMode() {
         
         recognition.onerror = (event) => {
             console.error('Speech recognition error:', event.error);
-            isListening = false;
-            updateVoiceStatus();
-            
             if (event.error === 'no-speech' && voiceModeActive) {
                 startIdleTimer();
-            }
-            
-            // Auto-recover from errors
-            if (voiceModeActive && !isProcessingCommand) {
-                setTimeout(() => {
-                    if (voiceModeActive) {
-                        try {
-                            recognition.start();
-                        } catch (error) {
-                            console.error('Error recovering recognition:', error);
-                        }
-                    }
-                }, 1000);
             }
         };
     } else {
@@ -68,19 +43,10 @@ function initVoiceMode() {
     }
 }
 
-// Flag to prevent command processing overlap
-let isProcessingCommand = false;
-// Store the last processed command to prevent duplicates
-let lastProcessedCommand = '';
-// Timestamp of last command to prevent rapid repeats
-let lastCommandTime = 0;
-
 function toggleVoiceMode() {
     const voiceButton = document.getElementById('voiceMode');
     
     voiceModeActive = !voiceModeActive;
-    isProcessingCommand = false;
-    lastProcessedCommand = '';
     
     if (voiceModeActive) {
         // Start voice recognition
@@ -111,19 +77,11 @@ function toggleVoiceMode() {
 }
 
 function handleSpeechResult(event) {
-    // Get the most recent result
-    const lastResultIndex = event.results.length - 1;
-    const transcript = event.results[lastResultIndex][0].transcript.trim();
+    const transcript = Array.from(event.results)
+        .map(result => result[0].transcript)
+        .join('');
     
-    // Log recognized speech
     console.log('Speech recognized:', transcript);
-    
-    // Prevent rapid repeats and duplicate processing 
-    const now = Date.now();
-    if (now - lastCommandTime < 2000 || transcript === lastProcessedCommand) {
-        console.log('Skipping duplicate or rapid command:', transcript);
-        return;
-    }
     
     // Reset idle timer as we received speech
     if (voiceModeActive) {
@@ -133,10 +91,9 @@ function handleSpeechResult(event) {
     
     if (isIdle) {
         // Check for wake word when in idle mode
-        const lowerTranscript = transcript.toLowerCase();
-        if (lowerTranscript.includes('websim') || 
-            lowerTranscript.includes('web sim') ||
-            lowerTranscript.includes('hey websim')) {
+        if (transcript.toLowerCase().includes('websim') || 
+            transcript.toLowerCase().includes('web sim') ||
+            transcript.toLowerCase().includes('hey websim')) {
             
             isIdle = false;
             updateVoiceStatus();
@@ -148,18 +105,8 @@ function handleSpeechResult(event) {
         return;
     }
     
-    // Set processing flag to prevent overlap
-    isProcessingCommand = true;
-    lastProcessedCommand = transcript;
-    lastCommandTime = now;
-    
     // Process speech command
     processVoiceCommand(transcript);
-    
-    // Release processing lock after a delay
-    setTimeout(() => {
-        isProcessingCommand = false;
-    }, 2000); // 2 seconds lock to prevent rapid processing
 }
 
 function processVoiceCommand(command) {
@@ -180,7 +127,7 @@ function processVoiceCommand(command) {
         /what (time|hour) is it/i,
         /what('s| is) the (current |)time/i,
         /(tell me|what's) the time/i,
-        /(do you|can you) (have|know|tell me) the time/i,
+        /do you (have|know) the time/i,
         /got the time/i,
         /check the time/i,
         /current time/i
@@ -372,7 +319,7 @@ function processVoiceCommand(command) {
 function startIdleTimer() {
     clearTimeout(idleTimer);
     idleTimer = setTimeout(() => {
-        if (voiceModeActive && !isIdle && !isProcessingCommand) {
+        if (voiceModeActive && !isIdle) {
             isIdle = true;
             updateVoiceStatus();
             showVoiceResponse("I'm now in idle mode. Say 'Websim' to wake me up.");
