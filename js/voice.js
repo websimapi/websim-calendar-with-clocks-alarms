@@ -89,8 +89,35 @@ function handleSpeechResult(event) {
         startIdleTimer();
     }
     
+    // Check for wake word followed by command
+    const wakeWordPatterns = [
+        /^\s*websim\s+(.*)/i,
+        /^\s*hey\s+websim\s+(.*)/i,
+        /^\s*hey,\s+websim\s+(.*)/i
+    ];
+    
+    let command = null;
+    for (const pattern of wakeWordPatterns) {
+        const match = transcript.match(pattern);
+        if (match && match[1]) {
+            command = match[1].trim();
+            break;
+        }
+    }
+    
+    if (command) {
+        // Wake up if idle and process command immediately
+        if (isIdle) {
+            isIdle = false;
+            updateVoiceStatus();
+            showVoiceResponse("Processing your command...");
+        }
+        processVoiceCommand(command);
+        return;
+    }
+    
     if (isIdle) {
-        // Check for wake word when in idle mode
+        // Check for just the wake word when in idle mode
         if (transcript.toLowerCase().includes('websim') || 
             transcript.toLowerCase().includes('web sim') ||
             transcript.toLowerCase().includes('hey websim')) {
@@ -105,7 +132,7 @@ function handleSpeechResult(event) {
         return;
     }
     
-    // Process speech command
+    // Process as regular command if not idle
     processVoiceCommand(transcript);
 }
 
@@ -322,8 +349,8 @@ function startIdleTimer() {
         if (voiceModeActive && !isIdle) {
             isIdle = true;
             updateVoiceStatus();
-            showVoiceResponse("I'm now in idle mode. Say 'Websim' to wake me up.");
-            speak("I'm now in idle mode. Say 'Websim' to wake me up.");
+            showVoiceResponse("I'm now in idle mode. Say 'Websim' to wake me up, or 'Websim' followed by a command.");
+            speak("I'm now in idle mode. Say 'Websim' to wake me up, or 'Websim' followed by a command.");
         }
     }, 10000); // 10 seconds
 }
@@ -336,7 +363,7 @@ function updateVoiceStatus() {
         voiceStatus.textContent = 'Inactive';
         voiceButton.classList.remove('active', 'listening', 'idle');
     } else if (isIdle) {
-        voiceStatus.textContent = 'Idle - Say "Websim" to wake';
+        voiceStatus.textContent = 'Idle - Say "Websim" or "Websim [command]"';
         voiceButton.classList.add('idle');
         voiceButton.classList.remove('listening');
     } else if (isListening) {
