@@ -116,6 +116,7 @@ header h1 {
 
 .days > .day:nth-child(n+36):hover {
     background-color: transparent;
+    cursor: default;
 }
 
 .day.today {
