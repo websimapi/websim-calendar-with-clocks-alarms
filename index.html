@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendar with Clocks & Alarms</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Calendar with Clocks & Alarms</h1>
+        </header>
+        
+        <div class="main-content">
+            <div class="calendar-container">
+                <div class="calendar-header">
+                    <button id="prevMonth">&lt;</button>
+                    <h2 id="monthYear"></h2>
+                    <button id="nextMonth">&gt;</button>
+                </div>
+                <div class="weekdays">
+                    <div>Sun</div>
+                    <div>Mon</div>
+                    <div>Tue</div>
+                    <div>Wed</div>
+                    <div>Thu</div>
+                    <div>Fri</div>
+                    <div>Sat</div>
+                </div>
+                <div id="calendar" class="days"></div>
+            </div>
+            
+            <div class="clocks-container">
+                <div class="analog-clock">
+                    <div class="clock-face">
+                        <div class="center-point"></div>
+                        <div class="hour-hand"></div>
+                        <div class="minute-hand"></div>
+                        <div class="second-hand"></div>
+                        <div class="hour-markers"></div>
+                    </div>
+                </div>
+                
+                <div class="digital-clock">
+                    <div id="digital-time"></div>
+                    <div id="digital-date"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="alarm-container">
+            <h2>Alarms</h2>
+            <div class="alarm-form">
+                <input type="time" id="alarmTime">
+                <button id="setAlarm">Set Alarm</button>
+            </div>
+            <div class="alarms-list" id="alarmsList">
+                <!-- Alarms will be added here -->
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516" integrity="sha512-8DS7rgIrAmghBFwoOTujcf6D9rXvH8xm8JQ1Ja01h9QX8EzXldiszufYa4IFfKdLUKTTrnSFXLDkUEOTrZQ8Qg==" data-cf-beacon='{"version":"2024.11.0","token":"4c6229722a6346bc8eb5cb0e5eae5d41","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+</body>
+</html>
+
