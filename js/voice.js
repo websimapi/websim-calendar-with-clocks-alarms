@@ -336,67 +336,155 @@ function createAlarmFromVoice(command) {
     let label = "";
     let weekdays = [];
     
-    // Time extraction patterns - look for time expressions like "8:30", "8 30", "8 AM", "8:30 PM", etc.
-    const timeRegex = /(\d{1,2})(?::(\d{2}))?\s*(am|pm)?/i;
-    const timeMatch = command.match(timeRegex);
+    // Advanced time extraction patterns
+    // Look for specific time patterns like "at 1pm", "at 1:30", etc.
+    const timeAtPattern = /(at|@)\s+(\d{1,2})(?::(\d{2}))?\s*(am|pm)?/i;
+    const timeAtMatch = command.match(timeAtPattern);
     
-    if (timeMatch) {
-        let hours = parseInt(timeMatch[1]);
-        const minutes = timeMatch[2] ? parseInt(timeMatch[2]) : 0;
-        const period = timeMatch[3] ? timeMatch[3].toLowerCase() : null;
+    // Regular time pattern (without "at")
+    const timeRegex = /(\d{1,2})(?::(\d{2}))?\s*(am|pm)?/i;
+    
+    if (timeAtMatch) {
+        let hours = parseInt(timeAtMatch[2]);
+        const minutes = timeAtMatch[3] ? parseInt(timeAtMatch[3]) : 0;
+        const period = timeAtMatch[4] ? timeAtMatch[4].toLowerCase() : null;
         
-        // Adjust hours based on AM/PM
+        // Handle AM/PM logic
         if (period === 'pm' && hours < 12) {
             hours += 12;
         } else if (period === 'am' && hours === 12) {
             hours = 0;
         }
         
-        // If no AM/PM specified and hour is < 12, assume PM for reasonable alarm times
-        if (!period && hours < 12 && hours >= 7) {
-            // Don't adjust - could be AM or PM
-        } else if (!period && hours < 7) {
-            // Early morning hours without AM/PM likely mean PM
-            hours += 12;
+        // If no AM/PM specified and reasonable hour
+        if (!period) {
+            // For afternoon hours without AM/PM, assume PM
+            if (hours < 12 && hours >= 7) {
+                // Don't adjust - could be AM or PM
+            } else if (hours < 7) {
+                // Early morning hours without AM/PM likely mean PM
+                hours += 12;
+            }
         }
         
         time = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+    } else {
+        // Try the regular pattern if "at X" wasn't found
+        const timeMatch = command.match(timeRegex);
+        
+        if (timeMatch) {
+            let hours = parseInt(timeMatch[1]);
+            const minutes = timeMatch[2] ? parseInt(timeMatch[2]) : 0;
+            const period = timeMatch[3] ? timeMatch[3].toLowerCase() : null;
+            
+            // Same AM/PM handling
+            if (period === 'pm' && hours < 12) {
+                hours += 12;
+            } else if (period === 'am' && hours === 12) {
+                hours = 0;
+            }
+            
+            if (!period) {
+                if (hours < 12 && hours >= 7) {
+                    // Don't adjust
+                } else if (hours < 7) {
+                    hours += 12;
+                }
+            }
+            
+            time = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+        }
     }
     
-    // Date extraction - look for specific dates like "tomorrow", "Monday", etc.
-    const tomorrowRegex = /\btomorrow\b/i;
-    const todayRegex = /\btoday\b/i;
-    const weekdayRegex = /\b(monday|tuesday|wednesday|thursday|friday|saturday|sunday)\b/ig;
+    // Enhanced date extraction
+    // Look for specific date references
+    const todayPattern = /\b(today)\b/i;
+    const tomorrowPattern = /\b(tomorrow)\b/i;
+    const dayAfterTomorrowPattern = /\b(day after tomorrow)\b/i;
+    const nextDayPattern = /\b(next|this)\s+(monday|tuesday|wednesday|thursday|friday|saturday|sunday)\b/i;
+    const specificDatePattern = /\b(january|february|march|april|may|june|july|august|september|october|november|december)\s+(\d{1,2})(?:st|nd|rd|th)?(?:\s*,?\s*(\d{4}))?\b/i;
     
-    // Check for date keywords
-    if (tomorrowRegex.test(command)) {
+    const now = new Date();
+    
+    // Check for "day after tomorrow"
+    if (dayAfterTomorrowPattern.test(command)) {
+        const dayAfterTomorrow = new Date();
+        dayAfterTomorrow.setDate(dayAfterTomorrow.getDate() + 2);
+        date = dayAfterTomorrow.toISOString().split('T')[0];
+    } 
+    // Check for "tomorrow"
+    else if (tomorrowPattern.test(command)) {
         const tomorrow = new Date();
         tomorrow.setDate(tomorrow.getDate() + 1);
         date = tomorrow.toISOString().split('T')[0];
-    } else if (todayRegex.test(command)) {
-        date = new Date().toISOString().split('T')[0];
+    } 
+    // Check for "today"
+    else if (todayPattern.test(command)) {
+        date = now.toISOString().split('T')[0];
+    } 
+    // Check for "next Monday", "this Tuesday", etc.
+    else if (nextDayMatch = command.match(nextDayPattern)) {
+        const dayName = nextDayMatch[2].toLowerCase();
+        const daysMap = {
+            'sunday': 0, 'monday': 1, 'tuesday': 2, 'wednesday': 3,
+            'thursday': 4, 'friday': 5, 'saturday': 6
+        };
+        
+        const targetDay = daysMap[dayName];
+        const currentDay = now.getDay();
+        let daysUntilTarget;
+        
+        // If "next" was specified, always go to next week's instance
+        if (nextDayMatch[1].toLowerCase() === 'next') {
+            daysUntilTarget = 7 + ((targetDay - currentDay + 7) % 7);
+        } else {
+            // For "this", if it's today or already passed this week, move to next week
+            daysUntilTarget = (targetDay - currentDay + 7) % 7;
+            if (daysUntilTarget === 0) daysUntilTarget = 7; // If same day, go to next week
+        }
+        
+        const targetDate = new Date();
+        targetDate.setDate(now.getDate() + daysUntilTarget);
+        date = targetDate.toISOString().split('T')[0];
+    }
+    // Check for specific date like "January 15" or "December 25, 2023"
+    else if (specificDateMatch = command.match(specificDatePattern)) {
+        const monthName = specificDateMatch[1].toLowerCase();
+        const day = parseInt(specificDateMatch[2]);
+        let year = specificDateMatch[3] ? parseInt(specificDateMatch[3]) : now.getFullYear();
+        
+        const monthsMap = {
+            'january': 0, 'february': 1, 'march': 2, 'april': 3, 'may': 4, 'june': 5,
+            'july': 6, 'august': 7, 'september': 8, 'october': 9, 'november': 10, 'december': 11
+        };
+        
+        const month = monthsMap[monthName];
+        
+        // If month is earlier in the year and no year specified, assume next year
+        if (!specificDateMatch[3] && month < now.getMonth() || 
+            (month === now.getMonth() && day < now.getDate())) {
+            year = now.getFullYear() + 1;
+        }
+        
+        const specifiedDate = new Date(year, month, day);
+        date = specifiedDate.toISOString().split('T')[0];
     }
     
-    // Check for day of week references
+    // Check for day of week mentions (for recurring alarms)
+    const weekdayRegex = /\b(monday|tuesday|wednesday|thursday|friday|saturday|sunday)s?\b/ig;
     const daysMap = {
-        'sunday': 0,
-        'monday': 1,
-        'tuesday': 2,
-        'wednesday': 3,
-        'thursday': 4,
-        'friday': 5,
-        'saturday': 6
+        'sunday': 0, 'monday': 1, 'tuesday': 2, 'wednesday': 3,
+        'thursday': 4, 'friday': 5, 'saturday': 6
     };
     
     const dayMatches = [...command.matchAll(weekdayRegex)];
     if (dayMatches.length > 0) {
-        // If days are mentioned, likely a weekly or custom alarm
+        // If days are mentioned, likely a weekly alarm
         weekdays = dayMatches.map(match => daysMap[match[0].toLowerCase()]);
         
         if (weekdays.length === 1 && !date) {
             // Set date to the next occurrence of this weekday
             const targetDay = weekdays[0];
-            const now = new Date();
             const daysUntilTarget = (targetDay + 7 - now.getDay()) % 7;
             const nextOccurrence = new Date();
             nextOccurrence.setDate(now.getDate() + (daysUntilTarget === 0 ? 7 : daysUntilTarget));
@@ -431,22 +519,21 @@ function createAlarmFromVoice(command) {
         repeatType = "custom";
     }
     
-    // Extract potential label
-    const forRegex = /\bfor\s+(.+)$/i;
-    const labelledRegex = /\blabelled\s+(.+)$/i;
-    const calledRegex = /\bcalled\s+(.+)$/i;
-    const namedRegex = /\bnamed\s+(.+)$/i;
+    // Extract potential label only if explicitly mentioned
+    const forRegex = /\b(?:for|about)\s+(.+?)(?:\s+at|\s+tomorrow|\s+today|\s+on|\s+every|\s+daily|\s+weekly|\s+monthly|$)/i;
+    const labelledRegex = /\b(?:labelled|labeled)\s+(?:as\s+)?["']?(.+?)["']?(?:\s+at|\s+tomorrow|\s+today|\s+on|\s+every|\s+daily|\s+weekly|\s+monthly|$)/i;
+    const calledRegex = /\b(?:called)\s+(?:as\s+)?["']?(.+?)["']?(?:\s+at|\s+tomorrow|\s+today|\s+on|\s+every|\s+daily|\s+weekly|\s+monthly|$)/i;
+    const namedRegex = /\b(?:named)\s+(?:as\s+)?["']?(.+?)["']?(?:\s+at|\s+tomorrow|\s+today|\s+on|\s+every|\s+daily|\s+weekly|\s+monthly|$)/i;
     
-    let labelMatch = command.match(forRegex) || 
-                      command.match(labelledRegex) || 
+    let labelMatch = command.match(labelledRegex) || 
                       command.match(calledRegex) ||
                       command.match(namedRegex);
                       
     if (labelMatch && labelMatch[1]) {
         label = labelMatch[1].trim();
-        // Remove trailing words that might be part of other command parts
-        label = label.replace(/(at|on|daily|weekly|monthly|every|each)\s+.*$/i, '').trim();
     }
+    
+    // Now we need to handle different scenarios based on what information we extracted
     
     // If we couldn't extract a time, ask the user for it
     if (!time) {
@@ -454,74 +541,67 @@ function createAlarmFromVoice(command) {
         speak("What time would you like to set the alarm for?");
         
         // Set up a listener for the time answer
-        listenForAlarmTime((time) => {
-            continueAlarmCreation(time, date, repeatType, weekdays, label);
+        listenForSpecificAnswer('time', (response) => {
+            // Extract time from the response
+            const timeMatch = response.match(timeRegex);
+            if (timeMatch) {
+                let hours = parseInt(timeMatch[1]);
+                const minutes = timeMatch[2] ? parseInt(timeMatch[2]) : 0;
+                const period = timeMatch[3] ? timeMatch[3].toLowerCase() : null;
+                
+                if (period === 'pm' && hours < 12) {
+                    hours += 12;
+                } else if (period === 'am' && hours === 12) {
+                    hours = 0;
+                }
+                
+                // If no AM/PM, make a reasonable guess
+                if (!period && hours < 12 && hours >= 7) {
+                    // Could be AM or PM, assume AM
+                } else if (!period && hours < 7) {
+                    // Early morning hours - likely PM
+                    hours += 12;
+                }
+                
+                const extractedTime = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+                
+                // Now ask for a label if none was provided
+                askForAlarmLabel(extractedTime, date, repeatType, weekdays, label);
+            } else {
+                showVoiceResponse("I couldn't understand the time. Please try setting the alarm again.");
+                speak("I couldn't understand the time. Please try setting the alarm again.");
+            }
         });
         return;
     }
     
-    // We have all needed info, continue with alarm creation
-    continueAlarmCreation(time, date, repeatType, weekdays, label);
+    // If we have the time but no explicit label, ask for it
+    askForAlarmLabel(time, date, repeatType, weekdays, label);
 }
 
-// Listen specifically for a time response
-function listenForAlarmTime(callback) {
-    // Set a flag that we're expecting a time response
-    window.expectingAlarmTime = true;
-    
-    // Set up a one-time listener for the next speech result
-    const originalOnResult = recognition.onresult;
-    
-    recognition.onresult = function(event) {
-        const transcript = Array.from(event.results)
-            .map(result => result[0].transcript)
-            .join('');
+// Ask user for an alarm label if not provided
+function askForAlarmLabel(time, date, repeatType, weekdays, label) {
+    if (!label) {
+        showVoiceResponse("What would you like to name this alarm?");
+        speak("What would you like to name this alarm?");
         
-        console.log('Time response:', transcript);
-        
-        // Extract time using the same regex as before
-        const timeRegex = /(\d{1,2})(?::(\d{2}))?\s*(am|pm)?/i;
-        const timeMatch = transcript.match(timeRegex);
-        
-        let extractedTime = null;
-        
-        if (timeMatch) {
-            let hours = parseInt(timeMatch[1]);
-            const minutes = timeMatch[2] ? parseInt(timeMatch[2]) : 0;
-            const period = timeMatch[3] ? timeMatch[3].toLowerCase() : null;
-            
-            if (period === 'pm' && hours < 12) {
-                hours += 12;
-            } else if (period === 'am' && hours === 12) {
-                hours = 0;
+        listenForSpecificAnswer('label', (response) => {
+            // If user says something like "no label" or "don't need one"
+            if (response.match(/\b(no label|don'?t need one|no name|skip|none|no thanks|not needed)\b/i)) {
+                label = ""; // Empty label
+                confirmAlarmDetails(time, date, repeatType, weekdays, label);
+            } else {
+                label = response.trim();
+                confirmAlarmDetails(time, date, repeatType, weekdays, label);
             }
-            
-            // If no AM/PM, make a reasonable guess
-            if (!period && hours < 12 && hours >= 7) {
-                // Could be AM or PM, probably AM
-            } else if (!period && hours < 7) {
-                // Early morning hours - likely PM
-                hours += 12;
-            }
-            
-            extractedTime = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
-        }
-        
-        // Reset the onresult handler
-        recognition.onresult = originalOnResult;
-        window.expectingAlarmTime = false;
-        
-        if (extractedTime) {
-            callback(extractedTime);
-        } else {
-            showVoiceResponse("I couldn't understand the time. Please try setting the alarm again.");
-            speak("I couldn't understand the time. Please try setting the alarm again.");
-        }
-    };
+        });
+    } else {
+        confirmAlarmDetails(time, date, repeatType, weekdays, label);
+    }
 }
 
-// Continue alarm creation with collected parameters
-function continueAlarmCreation(time, date, repeatType, weekdays, label) {
+// Ask user to confirm alarm details before creation
+function confirmAlarmDetails(time, date, repeatType, weekdays, label) {
     // Format the details for confirmation
     const timeObj = time.split(':');
     const hour = parseInt(timeObj[0]);
@@ -571,15 +651,47 @@ function continueAlarmCreation(time, date, repeatType, weekdays, label) {
         confirmationMessage += ` labeled "${label}"`;
     }
     
-    // Show confirmation and create the alarm
+    confirmationMessage += ". Would you like me to create this alarm?";
+    
+    // Ask for confirmation
     showVoiceResponse(confirmationMessage);
     speak(confirmationMessage);
     
+    listenForSpecificAnswer('confirmation', (response) => {
+        const affirmativePattern = /\b(yes|yeah|yep|sure|okay|ok|confirm|please|go ahead|create it|set it|that's right|that is right|correct|sounds good)\b/i;
+        const negativePattern = /\b(no|nope|don't|do not|cancel|stop|nevermind|incorrect|wrong|not right)\b/i;
+        
+        if (affirmativePattern.test(response)) {
+            // Create the alarm
+            createConfirmedAlarm(time, date, repeatType, weekdays, label);
+        } else if (negativePattern.test(response)) {
+            // Cancel alarm creation
+            showVoiceResponse("Alarm creation cancelled.");
+            speak("Alarm creation cancelled.");
+        } else {
+            // Unclear response, ask again
+            showVoiceResponse("I didn't understand. Would you like me to create this alarm? Please say yes or no.");
+            speak("I didn't understand. Would you like me to create this alarm? Please say yes or no.");
+            
+            listenForSpecificAnswer('confirmation', (secondResponse) => {
+                if (affirmativePattern.test(secondResponse)) {
+                    createConfirmedAlarm(time, date, repeatType, weekdays, label);
+                } else {
+                    showVoiceResponse("Alarm creation cancelled.");
+                    speak("Alarm creation cancelled.");
+                }
+            });
+        }
+    });
+}
+
+// Create the alarm after confirmation
+function createConfirmedAlarm(time, date, repeatType, weekdays, label) {
     // Create the alarm object
     const newAlarm = {
         id: Date.now().toString(),
         time: time,
-        label: label || 'Voice Alarm',
+        label: label || 'Alarm',
         type: repeatType,
         active: true
     };
@@ -608,16 +720,40 @@ function continueAlarmCreation(time, date, repeatType, weekdays, label) {
     alarms.push(newAlarm);
     saveAlarms();
     renderAlarms();
+    
+    // Inform the user
+    showVoiceResponse("Alarm created successfully.");
+    speak("Alarm created successfully.");
 }
 
-// Helper function to format a list of items in a natural language way
-function formatList(items) {
-    if (items.length === 0) return '';
-    if (items.length === 1) return items[0];
-    if (items.length === 2) return `${items[0]} and ${items[1]}`;
+// Listen for specific answer types (time, label, confirmation)
+function listenForSpecificAnswer(type, callback) {
+    // Set flag that we're expecting a specific answer
+    window.expectingVoiceResponse = type;
     
-    const lastItem = items.pop();
-    return `${items.join(', ')}, and ${lastItem}`;
+    // Save original handler
+    const originalOnResult = recognition.onresult;
+    
+    // Set up a one-time listener for the next speech result
+    recognition.onresult = function(event) {
+        const transcript = Array.from(event.results)
+            .map(result => result[0].transcript)
+            .join('');
+        
+        console.log(`${type} response:`, transcript);
+        
+        // Reset the onresult handler
+        recognition.onresult = originalOnResult;
+        window.expectingVoiceResponse = false;
+        
+        // Pass the transcript to the callback
+        callback(transcript);
+    };
+}
+
+// This function is now deprecated - replaced by listenForSpecificAnswer
+function listenForAlarmTime(callback) {
+    listenForSpecificAnswer('time', callback);
 }
 
 function startIdleTimer() {
@@ -652,4 +788,14 @@ function updateVoiceStatus() {
         voiceButton.classList.add('active');
         voiceButton.classList.remove('listening', 'idle');
     }
+}
+
+// Helper function to format a list of items in a natural language way
+function formatList(items) {
+    if (items.length === 0) return '';
+    if (items.length === 1) return items[0];
+    if (items.length === 2) return `${items[0]} and ${items[1]}`;
+    
+    const lastItem = items.pop();
+    return `${items.join(', ')}, and ${lastItem}`;
 }
