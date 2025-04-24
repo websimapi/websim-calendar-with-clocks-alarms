@@ -50,16 +50,18 @@ header h1 {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     display: flex;
     flex-direction: column;
-    min-height: 50vh;
-    max-height: 70vh;
-    overflow: hidden;
+    height: auto;
+    min-height: 0;
+    max-height: none;
+    overflow: visible;
 }
 
 .calendar-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 2vh;
+    margin-bottom: 1vh;
+    flex-shrink: 0;
 }
 
 .calendar-header h2 {
@@ -86,31 +88,43 @@ header h1 {
     text-align: center;
     font-weight: bold;
     margin-bottom: 1vh;
-    padding: 1vh 0;
+    padding: 0.5vh 0;
     border-bottom: 1px solid #eee;
-    font-size: clamp(0.7rem, 1.6vh, 1rem);
+    font-size: clamp(0.7rem, 1.4vh, 1rem);
+    flex-shrink: 0;
 }
 
 .days {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    grid-template-rows: repeat(6, 1fr);
-    gap: 0.5vh;
+    grid-auto-rows: 1fr;
+    gap: 0.2vh;
     flex: 1;
+    min-height: 0;
+    width: 100%;
 }
 
 .day {
-    aspect-ratio: 1/1;
+    position: relative;
     display: flex;
     align-items: flex-start;
     justify-content: flex-start;
     padding: 0.5vh;
-    cursor: pointer;
-    position: relative;
-    font-size: clamp(0.8rem, 1.8vh, 1.1rem);
+    font-size: clamp(0.8rem, 1.5vh, 1.1rem);
     border-radius: 0;
-    min-width: 0;
-    min-height: 0;
+    overflow: hidden;
+}
+
+.day::before {
+    content: "";
+    display: block;
+    padding-bottom: 100%;
+}
+
+.day span {
+    position: absolute;
+    top: 0.5vh;
+    left: 0.5vh;
 }
 
 .day:hover {
@@ -401,72 +415,87 @@ header h1 {
 @media (max-width: 1200px) {
     .weekdays div {
         font-size: clamp(0.7rem, 1.4vh, 0.9rem);
+        padding: 0.5vh 0;
+    }
+    
+    .day {
+        padding: 0.3vh;
+    }
+    
+    .day span {
+        top: 0.3vh;
+        left: 0.3vh;
     }
 }
 
 @media (max-width: 992px) {
-    .weekdays {
-        font-size: clamp(0.6rem, 1.3vh, 0.8rem);
+    .calendar-container {
+        padding: 1.5vh 1.5vw;
     }
     
-    .day {
-        font-size: clamp(0.7rem, 1.6vh, 1rem);
-        padding: 0.4vh;
+    .days {
+        gap: 0.15vh;
     }
 }
 
 @media (max-width: 768px) {
-    .weekdays div {
-        font-size: clamp(0.5rem, 1.2vh, 0.7rem);
-    }
-    
-    .container {
-        height: auto;
-        min-height: 100vh;
-        overflow-y: auto;
-    }
-    
-    .main-content {
-        flex-direction: column;
-    }
-    
     .calendar-container {
-        min-height: 45vh;
-        max-height: none;
+        min-height: 0;
+        height: auto;
+        aspect-ratio: 4/3;
+        padding: 1vh 1vw;
+    }
+    
+    .calendar-header {
+        margin-bottom: 0.5vh;
+    }
+    
+    .calendar-header button {
+        width: 3.5vh;
+        height: 3.5vh;
+    }
+    
+    .weekdays {
+        margin-bottom: 0.5vh;
+        padding: 0.3vh 0;
+    }
+    
+    .days {
+        gap: 0.1vh;
+    }
+    
+    .day {
+        padding: 0.2vh;
+    }
+    
+    .day span {
+        top: 0.2vh;
+        left: 0.2vh;
     }
 }
 
 @media (max-width: 576px) {
-    .weekdays div {
-        font-size: 0.7rem;
-        /* Use abbreviated day names on smallest screens */
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-    
-    .day {
-        font-size: 0.8rem;
-        padding: 0.3vh;
-    }
-    
     .calendar-container {
-        padding: 1vh 1vw;
-    }
-    
-    .days {
-        gap: 0.3vh;
+        aspect-ratio: auto;
+        height: auto;
+        min-height: 40vh;
     }
 }
 
 /* Fix for very small height screens */
 @media (max-height: 600px) {
     .calendar-container {
-        min-height: 40vh;
+        min-height: 0;
+        height: auto;
+        aspect-ratio: auto;
     }
     
-    .main-content {
-        gap: 1vh;
+    .weekdays {
+        font-size: clamp(0.6rem, 1.2vh, 0.8rem);
+    }
+    
+    .day {
+        font-size: clamp(0.7rem, 1.3vh, 0.9rem);
     }
 }
 

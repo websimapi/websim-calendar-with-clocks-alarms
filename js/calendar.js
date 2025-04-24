@@ -20,7 +20,7 @@ function renderCalendar() {
     for (let i = firstDayIndex; i > 0; i--) {
         const dayElement = document.createElement('div');
         dayElement.classList.add('day', 'other-month');
-        dayElement.textContent = prevLastDay - i + 1;
+        dayElement.innerHTML = `<span>${prevLastDay - i + 1}</span>`;
         calendar.appendChild(dayElement);
     }
     
@@ -28,7 +28,7 @@ function renderCalendar() {
     for (let i = 1; i <= lastDay.getDate(); i++) {
         const dayElement = document.createElement('div');
         dayElement.classList.add('day');
-        dayElement.textContent = i;
+        dayElement.innerHTML = `<span>${i}</span>`;
         
         const today = new Date();
         if (i === today.getDate() && month === today.getMonth() && year === today.getFullYear()) {
@@ -51,7 +51,7 @@ function renderCalendar() {
     for (let i = 1; i <= nextDays; i++) {
         const dayElement = document.createElement('div');
         dayElement.classList.add('day', 'other-month');
-        dayElement.textContent = i;
+        dayElement.innerHTML = `<span>${i}</span>`;
         
         // Add a data attribute to identify days in the 6th row 
         const dayRow = Math.ceil((totalDaysDisplayed + i) / 7);
@@ -99,10 +99,12 @@ function initCalendarControls() {
         renderCalendar();
     });
     
-    // Add window resize handler to ensure calendar remains responsive
-    window.addEventListener('resize', () => {
-        renderCalendar();
-    });
+    // Add event listener for window resize
+    window.addEventListener('resize', renderCalendar);
     
+    // Initial render
     renderCalendar();
+    
+    // Force a re-render after a short delay to fix any initial layout issues
+    setTimeout(renderCalendar, 100);
 }
