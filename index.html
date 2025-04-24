@@ -8,15 +8,27 @@
 </head>
 <body>
     <div class="container">
-        <div class="voice-button-container">
-            <button id="voiceMode" class="voice-button">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z" fill="currentColor"/>
-                    <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z" fill="currentColor"/>
-                </svg>
-                <span>Voice Mode</span>
+        <div class="top-buttons">
+            <button id="alarmButton" class="control-button">
+                <div class="button-content">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2zm-2 1H8v-6c0-2.48 1.51-4.5 4-4.5s4 2.02 4 4.5v6z" fill="currentColor"/>
+                    </svg>
+                    <span class="button-label">Alarms</span>
+                </div>
+                <span class="status-indicator" id="alarmCount"></span>
             </button>
-            <div id="voiceStatus" class="voice-status">Inactive</div>
+            
+            <button id="voiceMode" class="control-button">
+                <div class="button-content">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z" fill="currentColor"/>
+                        <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z" fill="currentColor"/>
+                    </svg>
+                    <span class="button-label">Voice Mode</span>
+                </div>
+                <span class="status-indicator" id="voiceStatus">Inactive</span>
+            </button>
         </div>
         
         <div class="main-content">
@@ -55,83 +67,76 @@
                 </div>
             </div>
         </div>
-        
-        <div class="alarm-container">
-            <h2>Alarms</h2>
-            <button id="createAlarm" class="create-alarm-button">Create Alarm</button>
-            <div class="alarms-list" id="alarmsList">
-                <!-- Alarms will be added here -->
+
+        <!-- Alarm Modal -->
+        <div id="alarmModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Alarms</h2>
+                    <button id="closeAlarmModal" class="close-button">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="alarm-form">
+                        <div class="form-group">
+                            <label for="alarmTitle">Title</label>
+                            <input type="text" id="alarmTitle" placeholder="Alarm Title">
+                        </div>
+                        <div class="form-group">
+                            <label for="alarmTime">Time</label>
+                            <input type="time" id="alarmTime">
+                        </div>
+                        <div class="form-group">
+                            <label for="alarmSound">Sound</label>
+                            <select id="alarmSound">
+                                <option value="beep">Beep</option>
+                                <option value="digital">Digital</option>
+                                <option value="chime">Chime</option>
+                                <option value="bell">Bell</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="alarmDuration">Duration (seconds)</label>
+                            <input type="number" id="alarmDuration" min="5" max="60" value="30">
+                        </div>
+                        <div class="form-group">
+                            <label>Repeat</label>
+                            <div class="repeat-options">
+                                <label><input type="radio" name="repeat" value="once" checked> Once</label>
+                                <label><input type="radio" name="repeat" value="daily"> Daily</label>
+                                <label><input type="radio" name="repeat" value="custom"> Custom</label>
+                            </div>
+                        </div>
+                        <div id="customDays" class="form-group custom-days">
+                            <div class="weekday-selector">
+                                <label><input type="checkbox" value="0"> Sun</label>
+                                <label><input type="checkbox" value="1"> Mon</label>
+                                <label><input type="checkbox" value="2"> Tue</label>
+                                <label><input type="checkbox" value="3"> Wed</label>
+                                <label><input type="checkbox" value="4"> Thu</label>
+                                <label><input type="checkbox" value="5"> Fri</label>
+                                <label><input type="checkbox" value="6"> Sat</label>
+                            </div>
+                        </div>
+                        <button id="setAlarm" class="set-alarm-btn">Set Alarm</button>
+                    </div>
+                    
+                    <div class="alarms-list">
+                        <h3>Active Alarms</h3>
+                        <div id="alarmsList"></div>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <!-- Alarm Creation Modal -->
-        <div id="alarmModal" class="alarm-modal">
-            <div class="alarm-modal-content">
-                <span class="close-modal">&times;</span>
-                <h2>Create New Alarm</h2>
-                
-                <div class="alarm-form">
-                    <div class="form-group">
-                        <label for="alarmTime">Time:</label>
-                        <input type="time" id="alarmTime" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Repeat:</label>
-                        <div class="repeat-options">
-                            <label>
-                                <input type="radio" name="repeatType" value="once" checked>
-                                Once
-                            </label>
-                            <label>
-                                <input type="radio" name="repeatType" value="daily">
-                                Daily
-                            </label>
-                            <label>
-                                <input type="radio" name="repeatType" value="weekly">
-                                Weekly
-                            </label>
-                            <label>
-                                <input type="radio" name="repeatType" value="biweekly">
-                                Bi-weekly
-                            </label>
-                            <label>
-                                <input type="radio" name="repeatType" value="monthly">
-                                Monthly
-                            </label>
-                            <label>
-                                <input type="radio" name="repeatType" value="custom">
-                                Custom
-                            </label>
-                        </div>
-                    </div>
-                    
-                    <div id="weekdaySelector" class="form-group hidden">
-                        <label>Days of week:</label>
-                        <div class="weekday-options">
-                            <label><input type="checkbox" name="weekday" value="0">Sun</label>
-                            <label><input type="checkbox" name="weekday" value="1">Mon</label>
-                            <label><input type="checkbox" name="weekday" value="2">Tue</label>
-                            <label><input type="checkbox" name="weekday" value="3">Wed</label>
-                            <label><input type="checkbox" name="weekday" value="4">Thu</label>
-                            <label><input type="checkbox" name="weekday" value="5">Fri</label>
-                            <label><input type="checkbox" name="weekday" value="6">Sat</label>
-                        </div>
-                    </div>
-                    
-                    <div id="dateSelector" class="form-group">
-                        <label for="alarmDate">Date (for one-time alarm):</label>
-                        <input type="date" id="alarmDate">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="alarmLabel">Label:</label>
-                        <input type="text" id="alarmLabel" placeholder="Alarm name (optional)">
-                    </div>
-                    
-                    <div class="form-buttons">
-                        <button id="cancelAlarm" class="cancel-button">Cancel</button>
-                        <button id="saveAlarm" class="save-button">Save Alarm</button>
+        <!-- Alarm Alert Overlay -->
+        <div id="alarmOverlay" class="alarm-overlay">
+            <div class="alarm-alert">
+                <div class="alarm-alert-content">
+                    <h2 id="alarmAlertTitle">Alarm Title</h2>
+                    <div class="alarm-time" id="alarmAlertTime">00:00</div>
+                    <div class="alarm-buttons">
+                        <button id="snoozeAlarm" class="alarm-btn snooze-btn">Snooze</button>
+                        <button id="dismissAlarm" class="alarm-btn dismiss-btn">Dismiss</button>
                     </div>
                 </div>
             </div>
@@ -142,6 +147,7 @@
     <!-- Module scripts -->
     <script src="js/utils.js"></script>
     <script src="js/audio.js"></script>
+    <script src="js/holidays.js"></script>
     <script src="js/calendar.js"></script>
     <script src="js/clock.js"></script>
     <script src="js/alarm.js"></script>
