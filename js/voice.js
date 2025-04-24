@@ -91,31 +91,14 @@ function handleSpeechResult(event) {
     
     if (isIdle) {
         // Check for wake word when in idle mode
-        const lowerTranscript = transcript.toLowerCase();
-        let commandAfterWakeWord = null;
-        
-        // Check for wake word variants and extract command that follows
-        if (lowerTranscript.includes('websim')) {
-            commandAfterWakeWord = lowerTranscript.split('websim').pop().trim();
-        } else if (lowerTranscript.includes('web sim')) {
-            commandAfterWakeWord = lowerTranscript.split('web sim').pop().trim();
-        } else if (lowerTranscript.includes('hey websim')) {
-            commandAfterWakeWord = lowerTranscript.split('hey websim').pop().trim();
-        }
-        
-        if (commandAfterWakeWord !== null) {
+        if (transcript.toLowerCase().includes('websim') || 
+            transcript.toLowerCase().includes('web sim') ||
+            transcript.toLowerCase().includes('hey websim')) {
+            
             isIdle = false;
             updateVoiceStatus();
-            
-            if (commandAfterWakeWord.length > 0) {
-                // Process the command that came after the wake word
-                console.log('Processing command after wake word:', commandAfterWakeWord);
-                processVoiceCommand(commandAfterWakeWord);
-            } else {
-                // No command detected after wake word
-                showVoiceResponse("I'm listening. How can I help you?");
-                speak("I'm listening. How can I help you?");
-            }
+            showVoiceResponse("I'm listening. How can I help you?");
+            speak("I'm listening. How can I help you?");
             return;
         }
         // Ignore other speech when idle
