@@ -10,6 +10,7 @@ let voiceModeActive = false;
 let idleTimer;
 let isIdle = false;
 let isListening = false;
+let isResponding = false; // New state to track when the system is responding
 
 // Event emitter for cross-module communication
 const EventEmitter = {

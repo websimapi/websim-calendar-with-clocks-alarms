@@ -8,7 +8,7 @@ function initVoiceMode() {
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         recognition = new SpeechRecognition();
         recognition.continuous = true;
-        recognition.interimResults = false;
+        recognition.interimResults = true; // Changed to true to detect ongoing speech
         recognition.lang = 'en-US';
         
         voiceButton.addEventListener('click', toggleVoiceMode);
@@ -20,7 +20,7 @@ function initVoiceMode() {
         };
         
         recognition.onend = () => {
-            if (voiceModeActive) {
+            if (voiceModeActive && !isResponding) {
                 recognition.start(); // Restart recognition if mode is still active
             } else {
                 isListening = false;
@@ -36,6 +36,11 @@ function initVoiceMode() {
                 startIdleTimer();
             }
         };
+        
+        // Set up speech synthesis event listeners
+        speechSynthesis.addEventListener('voiceschanged', () => {
+            console.log('Voices loaded:', speechSynthesis.getVoices().length);
+        });
     } else {
         voiceButton.disabled = true;
         voiceStatus.textContent = 'Not supported in this browser';
@@ -52,10 +57,10 @@ function toggleVoiceMode() {
         // Start voice recognition
         voiceButton.classList.add('active');
         isIdle = false;
+        isResponding = false;
         try {
             recognition.start();
-            showVoiceResponse("Voice mode activated. How can I help you?");
-            speak("Voice mode activated. How can I help you?");
+            respondToUser("Voice mode activated. How can I help you?");
         } catch (error) {
             console.error('Recognition start error:', error);
         }
@@ -64,10 +69,10 @@ function toggleVoiceMode() {
         // Stop voice recognition
         voiceButton.classList.remove('active', 'listening', 'idle');
         clearTimeout(idleTimer);
+        clearTimeout(speechDebounceTimer);
         try {
             recognition.stop();
-            showVoiceResponse("Voice mode deactivated.");
-            speak("Voice mode deactivated.");
+            respondToUser("Voice mode deactivated.");
         } catch (error) {
             console.error('Recognition stop error:', error);
         }
@@ -76,37 +81,136 @@ function toggleVoiceMode() {
     updateVoiceStatus();
 }
 
+// Track final transcripts and debounce processing
+let finalTranscript = '';
+let speechDebounceTimer = null;
+let lastSpeechTime = 0;
+const SPEECH_DEBOUNCE_DELAY = 1500; // 1.5 seconds of silence before processing
+
 function handleSpeechResult(event) {
-    const transcript = Array.from(event.results)
-        .map(result => result[0].transcript)
-        .join('');
-    
-    console.log('Speech recognized:', transcript);
-    
-    // Reset idle timer as we received speech
-    if (voiceModeActive) {
-        clearTimeout(idleTimer);
-        startIdleTimer();
-    }
-    
-    if (isIdle) {
-        // Check for wake word when in idle mode
-        if (transcript.toLowerCase().includes('websim') || 
-            transcript.toLowerCase().includes('web sim') ||
-            transcript.toLowerCase().includes('hey websim')) {
-            
-            isIdle = false;
-            updateVoiceStatus();
-            showVoiceResponse("I'm listening. How can I help you?");
-            speak("I'm listening. How can I help you?");
-            return;
-        }
-        // Ignore other speech when idle
+    // If system is responding, don't process new speech
+    if (isResponding) {
         return;
     }
     
-    // Process speech command
-    processVoiceCommand(transcript);
+    const now = Date.now();
+    lastSpeechTime = now;
+    
+    // Get interim results
+    let interimTranscript = '';
+    let isFinal = false;
+    
+    for (let i = event.resultIndex; i < event.results.length; i++) {
+        const transcript = event.results[i][0].transcript;
+        
+        if (event.results[i].isFinal) {
+            finalTranscript += ' ' + transcript;
+            isFinal = true;
+        } else {
+            interimTranscript += transcript;
+        }
+    }
+    
+    // Show interim transcript if available
+    if (interimTranscript && !isIdle) {
+        document.getElementById('voiceStatus').textContent = 'Listening: ' + interimTranscript;
+    }
+    
+    // Clear any existing timer
+    clearTimeout(speechDebounceTimer);
+    
+    // Set a new timer - will only process speech after silence
+    speechDebounceTimer = setTimeout(() => {
+        if (finalTranscript.trim()) {
+            console.log('Processing speech after silence:', finalTranscript);
+            
+            // Process the speech
+            if (isIdle) {
+                // Check for wake word when in idle mode
+                if (finalTranscript.toLowerCase().includes('websim') || 
+                    finalTranscript.toLowerCase().includes('web sim') ||
+                    finalTranscript.toLowerCase().includes('hey websim')) {
+                    
+                    isIdle = false;
+                    updateVoiceStatus();
+                    respondToUser("I'm listening. How can I help you?");
+                } 
+                // Reset transcript regardless of wake word result
+                finalTranscript = '';
+                return;
+            }
+            
+            // Process speech command
+            processVoiceCommand(finalTranscript);
+            finalTranscript = ''; // Reset after processing
+        }
+    }, SPEECH_DEBOUNCE_DELAY);
+    
+    // If in idle mode and no wake word, don't restart the idle timer
+    if (!isIdle) {
+        // Reset idle timer as we received speech
+        if (voiceModeActive) {
+            clearTimeout(idleTimer);
+            startIdleTimer();
+        }
+    }
+}
+
+// Helper function to handle both visual and audio responses
+function respondToUser(text) {
+    // Set the responding state to true
+    isResponding = true;
+    
+    // Try to stop recognition during response
+    try {
+        recognition.stop();
+    } catch (error) {
+        console.log("Recognition was already stopped");
+    }
+    
+    // Show visual response
+    showVoiceResponse(text);
+    
+    // Set up event listeners for speech
+    const utterance = new SpeechSynthesisUtterance(text);
+    
+    utterance.onstart = () => {
+        console.log("Speech started");
+    };
+    
+    utterance.onend = () => {
+        console.log("Speech ended");
+        isResponding = false;
+        
+        // Restart recognition after speaking if voice mode is still active
+        if (voiceModeActive) {
+            setTimeout(() => {
+                try {
+                    recognition.start();
+                } catch (error) {
+                    console.log("Recognition already started");
+                }
+            }, 500); // Short delay before starting to listen again
+        }
+    };
+    
+    utterance.onerror = (event) => {
+        console.error("Speech synthesis error:", event);
+        isResponding = false;
+        
+        // Restart recognition if voice mode is still active
+        if (voiceModeActive) {
+            try {
+                recognition.start();
+            } catch (error) {
+                console.log("Recognition already started");
+            }
+        }
+    };
+    
+    // Speak the response
+    speechSynthesis.cancel(); // Cancel any ongoing speech
+    speechSynthesis.speak(utterance);
 }
 
 function processVoiceCommand(command) {
@@ -253,8 +357,7 @@ function processVoiceCommand(command) {
             response = `Today's date is ${formattedDate}.`;
         }
         
-        showVoiceResponse(response);
-        speak(response);
+        respondToUser(response);
     } else if (isTimeQuery || timeZoneMatch) {
         let now = new Date();
         let response = "";
@@ -311,19 +414,20 @@ function processVoiceCommand(command) {
             }
         }
         
-        showVoiceResponse(response);
-        speak(response);
+        respondToUser(response);
+    } else {
+        // If we don't recognize the command
+        respondToUser("I'm sorry, I didn't understand that command. You can ask me about the date or time.");
     }
 }
 
 function startIdleTimer() {
     clearTimeout(idleTimer);
     idleTimer = setTimeout(() => {
-        if (voiceModeActive && !isIdle) {
+        if (voiceModeActive && !isIdle && !isResponding) {
             isIdle = true;
             updateVoiceStatus();
-            showVoiceResponse("I'm now in idle mode. Say 'Websim' to wake me up.");
-            speak("I'm now in idle mode. Say 'Websim' to wake me up.");
+            respondToUser("I'm now in idle mode. Say 'Websim' to wake me up.");
         }
     }, 10000); // 10 seconds
 }
@@ -335,6 +439,10 @@ function updateVoiceStatus() {
     if (!voiceModeActive) {
         voiceStatus.textContent = 'Inactive';
         voiceButton.classList.remove('active', 'listening', 'idle');
+    } else if (isResponding) {
+        voiceStatus.textContent = 'Responding...';
+        voiceButton.classList.add('active');
+        voiceButton.classList.remove('listening', 'idle');
     } else if (isIdle) {
         voiceStatus.textContent = 'Idle - Say "Websim" to wake';
         voiceButton.classList.add('idle');
