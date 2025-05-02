@@ -415,6 +415,17 @@ function processVoiceCommand(command) {
         }
         
         respondToUser(response);
+    } else if (command.includes('time')) {
+        // If the command contains the word "time" but doesn't match any specific pattern,
+        // assume the user is asking for the current time
+        const now = new Date();
+        const options = { 
+            hour: 'numeric', 
+            minute: 'numeric',
+            hour12: true
+        };
+        const formattedTime = now.toLocaleTimeString('en-US', options);
+        respondToUser(`The current time is ${formattedTime}.`);
     } else {
         // If we don't recognize the command
         respondToUser("I'm sorry, I didn't understand that command. You can ask me about the date or time.");
