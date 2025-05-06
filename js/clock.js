@@ -75,7 +75,8 @@ function checkDateRollover() {
     }
 }
 
-function initClocks() {
+// Make sure this function is defined in the global scope
+window.initClocks = function() {
     initializeAnalogClock();
     updateDigitalClock();
     
@@ -88,4 +89,4 @@ function initClocks() {
         // Emit event for alarm checking
         EventEmitter.emit('checkAlarms');
     }, 1000);
-}
+};
