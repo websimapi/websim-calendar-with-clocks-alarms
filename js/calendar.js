@@ -28,7 +28,31 @@ function renderCalendar() {
     for (let i = 1; i <= lastDay.getDate(); i++) {
         const dayElement = document.createElement('div');
         dayElement.classList.add('day');
-        dayElement.textContent = i;
+        
+        // Create day number element
+        const dayNumber = document.createElement('span');
+        dayNumber.classList.add('day-number');
+        dayNumber.textContent = i;
+        dayElement.appendChild(dayNumber);
+        
+        const currentDate = new Date(year, month, i);
+        
+        // Check if this day is a holiday
+        const holidayInfo = holidays.getHolidayInfo(currentDate);
+        if (holidayInfo) {
+            dayElement.classList.add('holiday');
+            dayElement.setAttribute('data-holiday', holidayInfo.name);
+            
+            // Add holiday indicator
+            const holidayIndicator = document.createElement('div');
+            holidayIndicator.classList.add('holiday-indicator');
+            holidayIndicator.textContent = holidayInfo.icon;
+            holidayIndicator.style.color = holidayInfo.color;
+            dayElement.appendChild(holidayIndicator);
+            
+            // Set custom outline color
+            dayElement.style.borderColor = holidayInfo.color;
+        }
         
         const today = new Date();
         if (i === today.getDate() && month === today.getMonth() && year === today.getFullYear()) {

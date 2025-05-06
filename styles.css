@@ -108,6 +108,8 @@ header h1 {
     position: relative;
     font-size: 1.8vh;
     border-radius: 0;
+    border: 1px solid transparent;
+    box-sizing: border-box;
 }
 
 .day:hover {
@@ -132,6 +134,42 @@ header h1 {
 
 .day.other-month {
     color: #ccc;
+}
+
+/* Holiday styling */
+.day.holiday {
+    border: 2px solid;
+    position: relative;
+}
+
+.holiday-indicator {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    font-size: 1.5vh;
+    z-index: 2;
+}
+
+.day-number {
+    position: relative;
+    z-index: 1;
+}
+
+/* For tooltip hover effect */
+.day.holiday:hover::after {
+    content: attr(data-holiday);
+    position: absolute;
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 1.4vh;
+    z-index: 10;
+    white-space: nowrap;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    pointer-events: none;
 }
 
 /* Clock Styles */
