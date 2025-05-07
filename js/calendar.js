@@ -19,6 +19,10 @@ function initCalendarControls() {
         fixedWeekCount: false,
         navLinks: true, // Can click day/week names to navigate views
         dayHeaderFormat: { weekday: 'long' }, // Full day names
+        dayCellClassNames: 'calendar-day-cell', // Add class for styling
+        dayHeaderClassNames: 'calendar-day-header', // Add class for styling
+        
+        // Improved day cell rendering
         dayCellDidMount: function(info) {
             // Check for holidays
             const date = info.date;

@@ -41,6 +41,121 @@ header h1 {
     margin-bottom: 2vh;
 }
 
+.calendar-container {
+    flex: 2;
+    background-color: white;
+    border-radius: 15px;
+    padding: 2vh 2vw;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    max-height: 75vh;
+    overflow: hidden;
+}
+
+.clocks-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3vh;
+    justify-content: center;
+    max-height: 75vh;
+}
+
+.fc {
+    height: 100%;
+    font-size: 1em;
+}
+
+.fc .fc-daygrid-day-top {
+    flex-direction: row;
+    justify-content: flex-start;
+    padding-left: 8px;
+    padding-top: 8px;
+}
+
+.fc .fc-daygrid-day-number {
+    font-weight: 500;
+    padding: 6px;
+    color: #444;
+}
+
+.fc-theme-standard td, .fc-theme-standard th {
+    border-color: #e0e0e0;
+}
+
+.fc-col-header-cell {
+    background-color: #f3f6fa;
+    padding: 12px 0;
+    font-weight: 600;
+}
+
+.fc-toolbar-title {
+    font-size: 1.6em !important;
+    font-weight: 600;
+    color: #333;
+}
+
+.fc-button-primary {
+    background-color: #4285f4 !important;
+    border-color: #4285f4 !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+    padding: 8px 12px !important;
+}
+
+.fc-day-today {
+    background-color: #e8f0fe !important;
+    box-shadow: inset 0 0 0 2px #4285f4 !important;
+}
+
+.fc .fc-daygrid-day-frame {
+    min-height: 7vh;
+    padding: 3px;
+}
+
+.fc .fc-daygrid-day.fc-day-today .fc-daygrid-day-number {
+    font-weight: bold;
+    color: #4285f4;
+}
+
+.fc-daygrid-day.holiday {
+    background-color: rgba(252, 252, 252, 0.5);
+    transition: background-color 0.2s ease;
+}
+
+.fc-daygrid-day.holiday:hover {
+    background-color: rgba(242, 242, 242, 0.8);
+}
+
+.holiday-indicator {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    font-size: 16px;
+    z-index: 2;
+    filter: drop-shadow(0 1px 1px rgba(0,0,0,0.2));
+}
+
+.analog-clock {
+    width: 25vh;
+    height: 25vh;
+    margin-bottom: 2vh;
+}
+
+.digital-clock {
+    padding: 1.5vh;
+    width: 90%;
+}
+
+#digital-time {
+    font-size: 4.5vh;
+}
+
+#digital-date {
+    font-size: 2vh;
+}
+
 .top-buttons {
     position: absolute;
     top: 2vh;
@@ -105,7 +220,7 @@ header h1 {
     border-radius: 10px;
     font-size: 12px;
     font-weight: 500;
-    display: none; /* Hide initially */
+    display: none;
 }
 
 #alarmCount:not(:empty) {
@@ -146,203 +261,6 @@ header h1 {
 #alarmButton:has(#alarmCount:not(:empty)) {
     background-color: #e6f4ea;
     border: 2px solid #34a853;
-}
-
-.calendar-container {
-    flex: 1;
-    background-color: white;
-    border-radius: 10px;
-    padding: 2vh 2vw;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    display: flex;
-    flex-direction: column;
-    max-height: 70vh;
-    overflow: hidden;
-}
-
-.fc {
-    height: 100%;
-    font-size: 0.9em;
-}
-
-.fc-theme-standard td, .fc-theme-standard th {
-    border-color: #eaeaea;
-}
-
-.fc-theme-standard .fc-scrollgrid {
-    border-color: #eaeaea;
-}
-
-.fc-day-today {
-    background-color: #e8f0fe !important;
-}
-
-.fc-col-header-cell {
-    background-color: #f8f9fa;
-    padding: 10px 0;
-}
-
-.fc-toolbar-title {
-    font-size: 1.4em !important;
-    font-weight: 600;
-}
-
-.fc-button-primary {
-    background-color: #4285f4 !important;
-    border-color: #4285f4 !important;
-}
-
-.fc-button-primary:hover {
-    background-color: #356ac3 !important;
-    border-color: #356ac3 !important;
-}
-
-.fc-daygrid-day.holiday {
-    position: relative;
-    border-width: 2px;
-}
-
-.holiday-indicator {
-    position: absolute;
-    top: 4px;
-    right: 4px;
-    font-size: 14px;
-    z-index: 2;
-}
-
-.fc-daygrid-day.holiday::after {
-    content: attr(data-holiday);
-    display: none;
-    position: absolute;
-    background-color: rgba(0, 0, 0, 0.8);
-    color: white;
-    padding: 5px 10px;
-    border-radius: 5px;
-    font-size: 12px;
-    z-index: 10;
-    white-space: nowrap;
-    bottom: 100%;
-    left: 50%;
-    transform: translateX(-50%);
-    pointer-events: none;
-}
-
-.fc-daygrid-day.holiday:hover::after {
-    display: block;
-}
-
-.clocks-container {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 2vh;
-    justify-content: center;
-    max-height: 70vh;
-}
-
-.analog-clock {
-    width: 30vh;
-    height: 30vh;
-    position: relative;
-    background-color: white;
-    border-radius: 50%;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-}
-
-.clock-face {
-    width: 100%;
-    height: 100%;
-    position: relative;
-    border-radius: 50%;
-    overflow: hidden;
-    border: 1vh solid #4285f4;
-}
-
-.hour-markers {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    top: 0;
-    left: 0;
-    z-index: 5;
-}
-
-.hour-marker {
-    position: absolute;
-    font-size: 2.2vh;
-    font-weight: bold;
-    color: #333;
-    width: 4vh;
-    height: 4vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 5;
-}
-
-.center-point {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 2vh;
-    height: 2vh;
-    background-color: #333;
-    border-radius: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 4;
-}
-
-.hour-hand, .minute-hand, .second-hand {
-    position: absolute;
-    bottom: 50%;
-    left: 50%;
-    transform-origin: bottom center;
-    border-radius: 4px;
-}
-
-.hour-hand {
-    width: 1.2vh;
-    height: 10vh;
-    background-color: #333;
-    transform: translateX(-50%);
-    z-index: 3;
-}
-
-.minute-hand {
-    width: 0.8vh;
-    height: 14vh;
-    background-color: #666;
-    transform: translateX(-50%);
-    z-index: 2;
-}
-
-.second-hand {
-    width: 0.4vh;
-    height: 16vh;
-    background-color: #f44336;
-    transform: translateX(-50%);
-    z-index: 1;
-}
-
-.digital-clock {
-    background-color: white;
-    padding: 2vh;
-    border-radius: 10px;
-    text-align: center;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    width: 100%;
-}
-
-#digital-time {
-    font-size: 5vh;
-    font-weight: bold;
-    margin-bottom: 1vh;
-}
-
-#digital-date {
-    font-size: 2.2vh;
-    color: #666;
 }
 
 .modal {
@@ -601,15 +519,6 @@ header h1 {
     color: white;
 }
 
-@keyframes pulse {
-    from {
-        transform: scale(1);
-    }
-    to {
-        transform: scale(1.05);
-    }
-}
-
 .voice-response {
     position: fixed;
     bottom: 5vh;
@@ -649,28 +558,18 @@ header h1 {
     }
     
     .calendar-container {
-        max-height: none;
-        margin-bottom: 20px;
+        flex: auto;
+        max-height: 65vh;
+        margin-bottom: 2vh;
     }
     
-    .fc {
-        font-size: 0.8em;
-    }
-    
-    .fc-toolbar.fc-header-toolbar {
-        flex-direction: column;
-    }
-    
-    .fc-toolbar-title {
-        margin: 10px 0;
+    .clocks-container {
+        flex: auto;
+        max-height: 28vh;
     }
     
     .analog-clock {
-        width: 25vh;
-        height: 25vh;
-    }
-    
-    .alarms-list {
-        max-height: 10vh;
+        width: 20vh;
+        height: 20vh;
     }
 }
