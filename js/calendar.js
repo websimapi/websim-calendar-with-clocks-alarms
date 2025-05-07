@@ -19,10 +19,6 @@ function initCalendarControls() {
         fixedWeekCount: false,
         navLinks: true, // Can click day/week names to navigate views
         dayHeaderFormat: { weekday: 'long' }, // Full day names
-        dayCellClassNames: 'calendar-day-cell', // Add class for styling
-        dayHeaderClassNames: 'calendar-day-header', // Add class for styling
-        
-        // Improved day cell rendering
         dayCellDidMount: function(info) {
             // Check for holidays
             const date = info.date;
@@ -52,10 +48,33 @@ function initCalendarControls() {
                 date.getFullYear() === today.getFullYear()) {
                 info.el.classList.add('today');
             }
+        },
+        // Custom styling for day cells
+        dayCellContent: function(info) {
+            // Create and return custom day cell content
+            const dayNumber = document.createElement('div');
+            dayNumber.classList.add('day-number');
+            dayNumber.textContent = info.dayNumberText;
+            return { domNodes: [dayNumber] };
         }
     });
     
     calendar.render();
+    
+    // Add custom styles for improved layout
+    const style = document.createElement('style');
+    style.textContent = `
+        .fc-daygrid-day-top {
+            justify-content: flex-start !important;
+            padding-left: 5px !important;
+        }
+        .day-number {
+            font-size: 1.1em;
+            font-weight: 500;
+            margin-top: 5px;
+        }
+    `;
+    document.head.appendChild(style);
     
     // Listen for window resize to adjust calendar
     window.addEventListener('resize', () => {
