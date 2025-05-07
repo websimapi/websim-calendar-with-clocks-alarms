@@ -455,7 +455,7 @@ function updateVoiceStatus() {
         voiceButton.classList.add('active');
         voiceButton.classList.remove('listening', 'idle');
     } else if (isIdle) {
-        voiceStatus.textContent = 'Idle - Say "Websim" to wake';
+        voiceStatus.textContent = 'Say "Websim"';
         voiceButton.classList.add('idle');
         voiceButton.classList.remove('listening');
     } else if (isListening) {
