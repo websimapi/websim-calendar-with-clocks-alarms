@@ -62,12 +62,18 @@ function initCalendarControls() {
     
     calendar.render();
     
-    // Add custom styles for improved layout
+    // Add custom styles for improved layout and ensure day numbers appear at top left
     const style = document.createElement('style');
     style.textContent = `
-        .fc-daygrid-day-top {
+        .fc .fc-daygrid-day-top {
             justify-content: flex-start !important;
-            padding-left: 8px !important; /* Increased padding */
+            padding-left: 5px !important;
+            flex-direction: row !important;
+        }
+        .fc .fc-daygrid-day-number {
+            float: left !important;
+            text-align: left !important;
+            margin-left: 5px !important;
         }
         .day-number {
             font-size: 1.2em; /* Larger font size */
@@ -75,6 +81,7 @@ function initCalendarControls() {
             margin-top: 5px;
             margin-bottom: 5px;
             color: #333; /* Darker text color */
+            float: left !important;
         }
         .fc .fc-daygrid-day-frame {
             min-height: 100px; /* Ensure consistency with CSS rule */
