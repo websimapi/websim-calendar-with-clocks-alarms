@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Calendar with Clocks & Alarms</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.2/main.min.css">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -33,21 +34,7 @@
         
         <div class="main-content">
             <div class="calendar-container">
-                <div class="calendar-header">
-                    <button id="prevMonth">&lt;</button>
-                    <h2 id="monthYear"></h2>
-                    <button id="nextMonth">&gt;</button>
-                </div>
-                <div class="weekdays">
-                    <div>Sunday</div>
-                    <div>Monday</div>
-                    <div>Tuesday</div>
-                    <div>Wednesday</div>
-                    <div>Thursday</div>
-                    <div>Friday</div>
-                    <div>Saturday</div>
-                </div>
-                <div id="calendar" class="days"></div>
+                <div id="calendar"></div>
             </div>
             
             <div class="clocks-container">
@@ -145,6 +132,7 @@
         <div id="voiceResponse" class="voice-response" aria-live="polite"></div>
     </div>
     <!-- Module scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.2/main.min.js"></script>
     <script src="js/utils.js"></script>
     <script src="js/audio.js"></script>
     <script src="js/holidays.js"></script>
