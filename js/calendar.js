@@ -67,25 +67,25 @@ function initCalendarControls() {
     style.textContent = `
         .fc .fc-daygrid-day-top {
             justify-content: flex-start !important;
-            padding-left: 5px !important;
+            padding-left: 0 !important;
             flex-direction: row !important;
         }
         .fc .fc-daygrid-day-number {
             float: left !important;
             text-align: left !important;
-            margin-left: 5px !important;
+            margin-left: 2px !important;
+            padding: 2px !important;
         }
         .day-number {
             font-size: 1.2em; /* Larger font size */
             font-weight: 500;
-            margin-top: 5px;
-            margin-bottom: 5px;
+            margin: 2px 0 0 2px !important;
             color: #333; /* Darker text color */
             float: left !important;
         }
         .fc .fc-daygrid-day-frame {
             min-height: 100px; /* Ensure consistency with CSS rule */
-            padding: 4px;
+            padding: 2px;
         }
         .fc-day-today .day-number {
             color: #1a73e8; /* Highlight today's date number */
