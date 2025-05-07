@@ -20,41 +20,17 @@ function initCalendarControls() {
         fixedWeekCount: false,
         navLinks: true, // Can click day/week names to navigate views
         dayHeaderFormat: { weekday: 'long' }, // Full day names
+        
+        // Use dayCellDidMount for rendering cell styling elements
         dayCellDidMount: function(info) {
-            // Check for holidays
-            const date = info.date;
-            const holidayInfo = holidays.getHolidayInfo(date);
-            
-            if (holidayInfo) {
-                // Create holiday indicator
-                const holidayEl = document.createElement('div');
-                holidayEl.className = 'holiday-indicator';
-                holidayEl.textContent = holidayInfo.icon;
-                holidayEl.style.color = holidayInfo.color;
-                holidayEl.title = holidayInfo.name;
-                
-                // Create inner colored border instead of using the cell border
-                const holidayBorder = document.createElement('div');
-                holidayBorder.className = 'holiday-border';
-                holidayBorder.style.borderColor = holidayInfo.color;
-                
-                // Add the elements to the cell
-                info.el.classList.add('holiday');
-                info.el.appendChild(holidayBorder);
-                info.el.appendChild(holidayEl);
-                
-                // Add tooltip functionality
-                info.el.setAttribute('data-holiday', holidayInfo.name);
-            }
-            
-            // Check if today
-            const today = new Date();
-            if (date.getDate() === today.getDate() && 
-                date.getMonth() === today.getMonth() && 
-                date.getFullYear() === today.getFullYear()) {
-                info.el.classList.add('today');
-            }
+            addHolidayStyling(info);
         },
+        
+        // Handle view changes, including month navigation
+        datesSet: function() {
+            // No additional action needed - the cell mounting will be triggered automatically
+        },
+        
         // Custom styling for day cells
         dayCellContent: function(info) {
             // Create and return custom day cell content
@@ -124,6 +100,43 @@ function initCalendarControls() {
     window.addEventListener('resize', () => {
         calendar.updateSize();
     });
+}
+
+// Separated holiday styling logic for better organization and reuse
+function addHolidayStyling(info) {
+    // Check for holidays
+    const date = info.date;
+    const holidayInfo = holidays.getHolidayInfo(date);
+    
+    if (holidayInfo) {
+        // Create holiday indicator
+        const holidayEl = document.createElement('div');
+        holidayEl.className = 'holiday-indicator';
+        holidayEl.textContent = holidayInfo.icon;
+        holidayEl.style.color = holidayInfo.color;
+        holidayEl.title = holidayInfo.name;
+        
+        // Create inner colored border instead of using the cell border
+        const holidayBorder = document.createElement('div');
+        holidayBorder.className = 'holiday-border';
+        holidayBorder.style.borderColor = holidayInfo.color;
+        
+        // Add the elements to the cell
+        info.el.classList.add('holiday');
+        info.el.appendChild(holidayBorder);
+        info.el.appendChild(holidayEl);
+        
+        // Add tooltip functionality
+        info.el.setAttribute('data-holiday', holidayInfo.name);
+    }
+    
+    // Check if today
+    const today = new Date();
+    if (date.getDate() === today.getDate() && 
+        date.getMonth() === today.getMonth() && 
+        date.getFullYear() === today.getFullYear()) {
+        info.el.classList.add('today');
+    }
 }
 
 // Expose functions needed by other modules
