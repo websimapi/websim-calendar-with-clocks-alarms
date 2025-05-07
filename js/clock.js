@@ -61,22 +61,7 @@ function updateDigitalClock() {
     });
 }
 
-let lastCheckedDate;
-
-function checkDateRollover() {
-    const now = new Date();
-    const today = now.toDateString(); // Get current day as string
-    
-    if (today !== lastCheckedDate) {
-        // Date has changed, update the calendar
-        console.log("Date rollover detected, updating calendar");
-        lastCheckedDate = today;
-        renderCalendar(); // Re-render the calendar to update today's indicator
-    }
-}
-
-// Make sure this function is defined in the global scope
-window.initClocks = function() {
+function initClocks() {
     initializeAnalogClock();
     updateDigitalClock();
     
@@ -84,9 +69,7 @@ window.initClocks = function() {
     setInterval(() => {
         updateAnalogClock();
         updateDigitalClock();
-        // Check if date has rolled over
-        checkDateRollover();
         // Emit event for alarm checking
         EventEmitter.emit('checkAlarms');
     }, 1000);
-};
+}

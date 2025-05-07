@@ -41,7 +41,58 @@ header h1 {
     margin-bottom: 2vh;
 }
 
-/* Calendar Styles */
+.top-buttons {
+    position: absolute;
+    top: 2vh;
+    right: 2vw;
+    display: flex;
+    gap: 1vw;
+    z-index: 100;
+}
+
+.top-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #4285f4;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 48px;
+    height: 48px;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.top-button:hover {
+    background-color: #356ac3;
+}
+
+.alarm-button {
+    background-color: #34a853;
+}
+
+.alarm-button:hover {
+    background-color: #2d8f47;
+}
+
+.alarm-count {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background-color: #ea4335;
+    color: white;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: bold;
+}
+
 .calendar-container {
     flex: 1;
     background-color: white;
@@ -136,7 +187,6 @@ header h1 {
     color: #ccc;
 }
 
-/* Holiday styling */
 .day.holiday {
     border: 2px solid;
     position: relative;
@@ -155,7 +205,6 @@ header h1 {
     z-index: 1;
 }
 
-/* For tooltip hover effect */
 .day.holiday:hover::after {
     content: attr(data-holiday);
     position: absolute;
@@ -172,7 +221,6 @@ header h1 {
     pointer-events: none;
 }
 
-/* Clock Styles */
 .clocks-container {
     flex: 1;
     display: flex;
@@ -287,72 +335,271 @@ header h1 {
     color: #666;
 }
 
-/* Alarm Styles */
-.alarm-container {
-    background-color: white;
-    padding: 2vh 2vw;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    max-height: 25vh;
-    overflow: hidden;
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
 }
 
-.alarm-container h2 {
-    font-size: 2.5vh;
-    margin-bottom: 1.5vh;
+.modal.active {
+    display: flex;
+}
+
+.modal-content {
+    background-color: white;
+    width: 90%;
+    max-width: 600px;
+    max-height: 90vh;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    background-color: #4285f4;
+    color: white;
+}
+
+.modal-header h2 {
+    margin: 0;
+    font-size: 24px;
+}
+
+.close-button {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 28px;
+    cursor: pointer;
+}
+
+.modal-body {
+    padding: 20px;
+    overflow-y: auto;
+    max-height: calc(90vh - 60px);
 }
 
 .alarm-form {
     display: flex;
-    gap: 1vw;
-    margin-bottom: 1.5vh;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #eee;
 }
 
-#alarmTime {
-    padding: 1.5vh;
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.form-group label {
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.form-group input, .form-group select {
+    padding: 10px;
     border: 1px solid #ddd;
     border-radius: 5px;
-    flex: 1;
-    font-size: 1.8vh;
+    font-size: 16px;
 }
 
-#setAlarm {
+.repeat-options {
+    display: flex;
+    gap: 15px;
+}
+
+.weekday-selector {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.weekday-selector label {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+}
+
+.custom-days {
+    display: none;
+    margin-top: 10px;
+}
+
+.custom-days.active {
+    display: block;
+}
+
+.set-alarm-btn {
     background-color: #4285f4;
     color: white;
     border: none;
     border-radius: 5px;
-    padding: 1.5vh 2vh;
+    padding: 12px;
+    font-size: 16px;
     cursor: pointer;
-    font-size: 1.8vh;
+    margin-top: 10px;
+}
+
+.set-alarm-btn:hover {
+    background-color: #356ac3;
 }
 
 .alarms-list {
-    max-height: 15vh;
-    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.alarms-list h3 {
+    margin-bottom: 10px;
+    font-size: 18px;
 }
 
 .alarm-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1.5vh;
-    margin-bottom: 1vh;
-    background-color: #f9f9f9;
+    padding: 15px;
     border-radius: 5px;
-    font-size: 1.8vh;
+    background-color: #f5f5f5;
+    margin-bottom: 10px;
+}
+
+.alarm-info {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.alarm-time {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.alarm-title {
+    font-size: 16px;
+}
+
+.alarm-details {
+    font-size: 14px;
+    color: #666;
+}
+
+.alarm-controls {
+    display: flex;
+    gap: 10px;
+}
+
+.alarm-toggle {
+    background: none;
+    border: none;
+    color: #4285f4;
+    cursor: pointer;
+    font-size: 20px;
 }
 
 .delete-alarm {
-    background-color: #f44336;
+    background-color: #ea4335;
     color: white;
     border: none;
     border-radius: 5px;
-    padding: 1vh 1.5vh;
+    padding: 8px 12px;
     cursor: pointer;
-    font-size: 1.6vh;
 }
 
-/* Voice Mode Styles */
+.alarm-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    z-index: 2000;
+    justify-content: center;
+    align-items: center;
+}
+
+.alarm-overlay.active {
+    display: flex;
+}
+
+.alarm-alert {
+    background-color: white;
+    width: 90%;
+    max-width: 400px;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 5px 30px rgba(0, 0, 0, 0.5);
+    animation: pulse 1s infinite alternate;
+}
+
+.alarm-alert-content {
+    padding: 30px;
+    text-align: center;
+}
+
+.alarm-alert-content h2 {
+    font-size: 24px;
+    margin-bottom: 15px;
+}
+
+.alarm-time {
+    font-size: 48px;
+    font-weight: bold;
+    margin-bottom: 30px;
+}
+
+.alarm-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+.alarm-btn {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    min-width: 120px;
+}
+
+.snooze-btn {
+    background-color: #fbbc05;
+}
+
+.dismiss-btn {
+    background-color: #4285f4;
+    color: white;
+}
+
+@keyframes pulse {
+    from {
+        transform: scale(1);
+    }
+    to {
+        transform: scale(1.05);
+    }
+}
+
 .voice-button-container {
     position: absolute;
     top: 2vh;
@@ -432,7 +679,6 @@ header h1 {
     opacity: 1;
 }
 
-/* TV Screen Media Query */
 @media (min-width: 1200px) {
     .container {
         padding: 3vh 3vw;
@@ -452,7 +698,6 @@ header h1 {
     }
 }
 
-/* Responsive design for smaller screens */
 @media (max-width: 768px) {
     .main-content {
         flex-direction: column;

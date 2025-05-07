@@ -1,8 +1,6 @@
 // Shared state and utility functions
 let currentDate = new Date();
 let alarms = JSON.parse(localStorage.getItem('alarms')) || [];
-let alarmSound;
-let lastCheckedDate = new Date().toDateString(); // Track the last checked date
 
 // Voice recognition state
 let recognition;
