@@ -33,9 +33,14 @@ function initCalendarControls() {
                 holidayEl.style.color = holidayInfo.color;
                 holidayEl.title = holidayInfo.name;
                 
-                // Style the day cell
+                // Create inner colored border instead of using the cell border
+                const holidayBorder = document.createElement('div');
+                holidayBorder.className = 'holiday-border';
+                holidayBorder.style.borderColor = holidayInfo.color;
+                
+                // Add the elements to the cell
                 info.el.classList.add('holiday');
-                info.el.style.borderColor = holidayInfo.color;
+                info.el.appendChild(holidayBorder);
                 info.el.appendChild(holidayEl);
                 
                 // Add tooltip functionality
@@ -89,6 +94,28 @@ function initCalendarControls() {
         }
         .fc-day-today .day-number {
             color: #1a73e8; /* Highlight today's date number */
+        }
+        
+        /* Holiday styling with inner border that doesn't conflict with calendar borders */
+        .fc-daygrid-day.holiday {
+            position: relative;
+        }
+        .holiday-border {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            border: 3px solid transparent;
+            z-index: 1;
+        }
+        .holiday-indicator {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            font-size: 16px; 
+            z-index: 2;
         }
     `;
     document.head.appendChild(style);

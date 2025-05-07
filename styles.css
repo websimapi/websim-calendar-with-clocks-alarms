@@ -216,23 +216,17 @@ header h1 {
 
 .fc-daygrid-day.holiday {
     position: relative;
-    border-width: 2px !important;
-    border-style: solid !important;
 }
 
-.fc-theme-standard .fc-scrollgrid-section-body td.holiday {
-    border-width: 2px !important;
-    border-style: solid !important;
-}
-
-.fc-theme-standard .fc-scrollgrid-section-body tr:last-child td.holiday {
-    border-bottom-width: 2px !important;
-    border-bottom-style: solid !important;
-}
-
-.fc-theme-standard .fc-scrollgrid-section-body td.holiday:last-child {
-    border-right-width: 2px !important;
-    border-right-style: solid !important;
+.holiday-border {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    border: 3px solid transparent;
+    z-index: 1;
 }
 
 .holiday-indicator {
