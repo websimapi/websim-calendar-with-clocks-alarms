@@ -13,6 +13,7 @@ function initCalendarControls() {
         },
         firstDay: 0, // Start week on Sunday
         height: 'auto',
+        aspectRatio: 1.35, // Adjusted for taller boxes (lower ratio = taller)
         dayMaxEvents: true, // Allow "more" link when too many events
         weekends: true,
         showNonCurrentDates: true,
@@ -66,12 +67,21 @@ function initCalendarControls() {
     style.textContent = `
         .fc-daygrid-day-top {
             justify-content: flex-start !important;
-            padding-left: 5px !important;
+            padding-left: 8px !important; /* Increased padding */
         }
         .day-number {
-            font-size: 1.1em;
+            font-size: 1.2em; /* Larger font size */
             font-weight: 500;
             margin-top: 5px;
+            margin-bottom: 5px;
+            color: #333; /* Darker text color */
+        }
+        .fc .fc-daygrid-day-frame {
+            min-height: 100px; /* Ensure consistency with CSS rule */
+            padding: 4px;
+        }
+        .fc-day-today .day-number {
+            color: #1a73e8; /* Highlight today's date number */
         }
     `;
     document.head.appendChild(style);

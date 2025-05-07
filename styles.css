@@ -156,21 +156,24 @@ header h1 {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     display: flex;
     flex-direction: column;
-    max-height: 70vh;
+    max-height: 80vh;
     overflow: hidden;
+    border: 2px solid #e0e0e0;
 }
 
 .fc {
     height: 100%;
-    font-size: 1em; 
+    font-size: 1.1em; 
 }
 
 .fc-theme-standard td, .fc-theme-standard th {
-    border-color: #eaeaea;
+    border-color: #d0d0d0;
+    border-width: 1.5px;
 }
 
 .fc-theme-standard .fc-scrollgrid {
-    border-color: #eaeaea;
+    border-color: #d0d0d0;
+    border-width: 1.5px;
 }
 
 .fc-day-today {
@@ -208,7 +211,7 @@ header h1 {
 }
 
 .fc-daygrid-day {
-    min-height: 80px !important; 
+    min-height: 100px !important; 
 }
 
 .fc-daygrid-day.holiday {
@@ -682,7 +685,7 @@ header h1 {
     }
     
     .fc-daygrid-day {
-        min-height: 60px !important;
+        min-height: 70px !important;
     }
     
     .fc-toolbar.fc-header-toolbar {
