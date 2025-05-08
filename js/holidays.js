@@ -26,87 +26,52 @@ const holidays = {
             return fixedHolidays[mmdd];
         }
         
-        // Variable date holidays calculations
+        // Variable date holidays
         
         // Martin Luther King Jr. Day (3rd Monday in January)
-        if (month === 0 && dayOfWeek === 1) {
-            // Count which Monday this is in the month
-            const mondayCount = Math.ceil(day / 7);
-            if (mondayCount === 3) {
-                return { name: "MLK Jr. Day", color: "#674EA7", icon: "✊🏽" };
-            }
+        if (month === 0 && dayOfWeek === 1 && day >= 15 && day <= 21) {
+            return { name: "MLK Jr. Day", color: "#674EA7", icon: "✊🏽" };
         }
         
         // Presidents' Day (3rd Monday in February)
-        if (month === 1 && dayOfWeek === 1) {
-            // Count which Monday this is in the month
-            const mondayCount = Math.ceil(day / 7);
-            if (mondayCount === 3) {
-                return { name: "Presidents' Day", color: "#3D85C6", icon: "🇺🇸" };
-            }
+        if (month === 1 && dayOfWeek === 1 && day >= 15 && day <= 21) {
+            return { name: "Presidents' Day", color: "#3D85C6", icon: "🇺🇸" };
         }
         
         // Easter (variable date)
         const easterDate = this.calculateEaster(year);
-        if (easterDate.getFullYear() === year && 
-            easterDate.getMonth() === month && 
-            easterDate.getDate() === day) {
+        if (month === easterDate.getMonth() && day === easterDate.getDate()) {
             return { name: "Easter", color: "#6AA84F", icon: "🐰" };
         }
         
         // Mother's Day (2nd Sunday in May)
-        if (month === 4 && dayOfWeek === 0) {
-            // Count which Sunday this is in the month
-            const sundayCount = Math.ceil(day / 7);
-            if (sundayCount === 2) {
-                return { name: "Mother's Day", color: "#E06666", icon: "💐" };
-            }
+        if (month === 4 && dayOfWeek === 0 && day >= 8 && day <= 14) {
+            return { name: "Mother's Day", color: "#E06666", icon: "💐" };
         }
         
         // Memorial Day (Last Monday in May)
-        if (month === 4 && dayOfWeek === 1) {
-            // Check if this is the last Monday by seeing if there's another Monday this month
-            const lastDayOfMonth = new Date(year, month + 1, 0).getDate();
-            const daysLeft = lastDayOfMonth - day;
-            if (daysLeft < 7) {
-                return { name: "Memorial Day", color: "#CC0000", icon: "🇺🇸" };
-            }
+        if (month === 4 && dayOfWeek === 1 && day >= 25 && day <= 31) {
+            return { name: "Memorial Day", color: "#CC0000", icon: "🇺🇸" };
         }
         
         // Father's Day (3rd Sunday in June)
-        if (month === 5 && dayOfWeek === 0) {
-            // Count which Sunday this is in the month
-            const sundayCount = Math.ceil(day / 7);
-            if (sundayCount === 3) {
-                return { name: "Father's Day", color: "#3D85C6", icon: "👔" };
-            }
+        if (month === 5 && dayOfWeek === 0 && day >= 15 && day <= 21) {
+            return { name: "Father's Day", color: "#3D85C6", icon: "👔" };
         }
         
         // Labor Day (1st Monday in September)
-        if (month === 8 && dayOfWeek === 1) {
-            // Count which Monday this is in the month
-            const mondayCount = Math.ceil(day / 7);
-            if (mondayCount === 1) {
-                return { name: "Labor Day", color: "#3D85C6", icon: "🛠️" };
-            }
+        if (month === 8 && dayOfWeek === 1 && day <= 7) {
+            return { name: "Labor Day", color: "#3D85C6", icon: "🛠️" };
         }
         
         // Columbus Day / Indigenous Peoples' Day (2nd Monday in October)
-        if (month === 9 && dayOfWeek === 1) {
-            // Count which Monday this is in the month
-            const mondayCount = Math.ceil(day / 7);
-            if (mondayCount === 2) {
-                return { name: "Columbus Day", color: "#674EA7", icon: "🧭" };
-            }
+        if (month === 9 && dayOfWeek === 1 && day >= 8 && day <= 14) {
+            return { name: "Columbus Day", color: "#674EA7", icon: "🧭" };
         }
         
         // Thanksgiving (4th Thursday in November)
-        if (month === 10 && dayOfWeek === 4) {
-            // Count which Thursday this is in the month
-            const thursdayCount = Math.ceil(day / 7);
-            if (thursdayCount === 4) {
-                return { name: "Thanksgiving", color: "#B45F06", icon: "🦃" };
-            }
+        if (month === 10 && dayOfWeek === 4 && day >= 22 && day <= 28) {
+            return { name: "Thanksgiving", color: "#B45F06", icon: "🦃" };
         }
         
         // Not a holiday

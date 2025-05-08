@@ -446,25 +446,45 @@ function startIdleTimer() {
 function updateVoiceStatus() {
     const voiceButton = document.getElementById('voiceMode');
     const voiceStatus = document.getElementById('voiceStatus');
+    const voiceIndicator = document.getElementById('voiceIndicator');
     
     if (!voiceModeActive) {
         voiceStatus.textContent = 'Inactive';
         voiceButton.classList.remove('active', 'listening', 'idle');
+        voiceIndicator.classList.remove('active', 'listening', 'idle');
     } else if (isResponding) {
         voiceStatus.textContent = 'Responding...';
         voiceButton.classList.add('active');
         voiceButton.classList.remove('listening', 'idle');
+        voiceIndicator.classList.add('active');
+        voiceIndicator.classList.remove('listening', 'idle');
     } else if (isIdle) {
-        voiceStatus.textContent = 'Say "Websim"';
+        voiceStatus.textContent = 'Idle - Say "Websim" to wake';
         voiceButton.classList.add('idle');
-        voiceButton.classList.remove('listening');
+        voiceButton.classList.remove('listening', 'active');
+        voiceIndicator.classList.add('idle');
+        voiceIndicator.classList.remove('listening', 'active');
+        voiceIndicator.textContent = 'Z';
     } else if (isListening) {
         voiceStatus.textContent = 'Listening...';
         voiceButton.classList.add('listening');
-        voiceButton.classList.remove('idle');
+        voiceButton.classList.remove('idle', 'active');
+        voiceIndicator.classList.add('listening');
+        voiceIndicator.classList.remove('idle', 'active');
+        voiceIndicator.textContent = '';
     } else {
         voiceStatus.textContent = 'Active';
         voiceButton.classList.add('active');
         voiceButton.classList.remove('listening', 'idle');
+        voiceIndicator.classList.add('active');
+        voiceIndicator.classList.remove('listening', 'idle');
+        voiceIndicator.textContent = '';
+    }
+    
+    // Always show the indicator when voice mode is active
+    if (voiceModeActive) {
+        voiceIndicator.style.display = 'flex';
+    } else {
+        voiceIndicator.style.display = 'none';
     }
 }

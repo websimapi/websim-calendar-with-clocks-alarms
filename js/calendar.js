@@ -1,149 +1,87 @@
 // Calendar functionality
-let calendar;
+function renderCalendar() {
+    const monthYear = document.getElementById('monthYear');
+    const calendar = document.getElementById('calendar');
+    
+    const month = currentDate.getMonth();
+    const year = currentDate.getFullYear();
+    
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    
+    monthYear.textContent = `${firstDay.toLocaleString('default', { month: 'long' })} ${year}`;
+    
+    calendar.innerHTML = '';
+    
+    // Add days from previous month
+    const firstDayIndex = firstDay.getDay();
+    const prevLastDay = new Date(year, month, 0).getDate();
+    
+    for (let i = firstDayIndex; i > 0; i--) {
+        const dayElement = document.createElement('div');
+        dayElement.classList.add('day', 'other-month');
+        dayElement.textContent = prevLastDay - i + 1;
+        calendar.appendChild(dayElement);
+    }
+    
+    // Current month days
+    for (let i = 1; i <= lastDay.getDate(); i++) {
+        const dayElement = document.createElement('div');
+        dayElement.classList.add('day');
+        
+        // Create day number element
+        const dayNumber = document.createElement('span');
+        dayNumber.classList.add('day-number');
+        dayNumber.textContent = i;
+        dayElement.appendChild(dayNumber);
+        
+        const currentDate = new Date(year, month, i);
+        
+        // Check if this day is a holiday
+        const holidayInfo = holidays.getHolidayInfo(currentDate);
+        if (holidayInfo) {
+            dayElement.classList.add('holiday');
+            dayElement.setAttribute('data-holiday', holidayInfo.name);
+            
+            // Add holiday indicator
+            const holidayIndicator = document.createElement('div');
+            holidayIndicator.classList.add('holiday-indicator');
+            holidayIndicator.textContent = holidayInfo.icon;
+            holidayIndicator.style.color = holidayInfo.color;
+            dayElement.appendChild(holidayIndicator);
+            
+            // Set custom outline color
+            dayElement.style.borderColor = holidayInfo.color;
+        }
+        
+        const today = new Date();
+        if (i === today.getDate() && month === today.getMonth() && year === today.getFullYear()) {
+            dayElement.classList.add('today');
+        }
+        
+        calendar.appendChild(dayElement);
+    }
+    
+    // Next month days
+    const nextDays = 42 - (firstDayIndex + lastDay.getDate());
+    for (let i = 1; i <= nextDays; i++) {
+        const dayElement = document.createElement('div');
+        dayElement.classList.add('day', 'other-month');
+        dayElement.textContent = i;
+        calendar.appendChild(dayElement);
+    }
+}
 
 function initCalendarControls() {
-    const calendarEl = document.getElementById('calendar');
-    
-    calendar = new FullCalendar.Calendar(calendarEl, {
-        initialView: 'dayGridMonth',
-        headerToolbar: {
-            left: 'prev,next today',
-            center: 'title',
-            right: 'dayGridMonth,timeGridWeek'
-        },
-        firstDay: 0, // Start week on Sunday
-        height: 'auto',
-        aspectRatio: 1.35, // Adjusted for taller boxes (lower ratio = taller)
-        dayMaxEvents: true, // Allow "more" link when too many events
-        weekends: true,
-        showNonCurrentDates: true,
-        fixedWeekCount: false,
-        navLinks: true, // Can click day/week names to navigate views
-        dayHeaderFormat: { weekday: 'long' }, // Full day names
-        
-        // Use dayCellDidMount for rendering cell styling elements
-        dayCellDidMount: function(info) {
-            addHolidayStyling(info);
-        },
-        
-        // Handle view changes, including month navigation
-        datesSet: function() {
-            // No additional action needed - the cell mounting will be triggered automatically
-        },
-        
-        // Custom styling for day cells
-        dayCellContent: function(info) {
-            // Create and return custom day cell content
-            const dayNumber = document.createElement('div');
-            dayNumber.classList.add('day-number');
-            dayNumber.textContent = info.dayNumberText;
-            return { domNodes: [dayNumber] };
-        }
+    document.getElementById('prevMonth').addEventListener('click', () => {
+        currentDate.setMonth(currentDate.getMonth() - 1);
+        renderCalendar();
     });
     
-    calendar.render();
-    
-    // Add custom styles for improved layout and ensure day numbers appear at top left
-    const style = document.createElement('style');
-    style.textContent = `
-        .fc .fc-daygrid-day-top {
-            justify-content: flex-start !important;
-            padding-left: 0 !important;
-            flex-direction: row !important;
-        }
-        .fc .fc-daygrid-day-number {
-            float: left !important;
-            text-align: left !important;
-            margin-left: 2px !important;
-            padding: 2px !important;
-        }
-        .day-number {
-            font-size: 1.2em; /* Larger font size */
-            font-weight: 500;
-            margin: 2px 0 0 2px !important;
-            color: #333; /* Darker text color */
-            float: left !important;
-        }
-        .fc .fc-daygrid-day-frame {
-            min-height: 100px; /* Ensure consistency with CSS rule */
-            padding: 2px;
-        }
-        .fc-day-today .day-number {
-            color: #1a73e8; /* Highlight today's date number */
-        }
-        
-        /* Holiday styling with inner border that doesn't conflict with calendar borders */
-        .fc-daygrid-day.holiday {
-            position: relative;
-        }
-        .holiday-border {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            pointer-events: none;
-            border: 3px solid transparent;
-            z-index: 1;
-        }
-        .holiday-indicator {
-            position: absolute;
-            top: 4px;
-            right: 4px;
-            font-size: 16px; 
-            z-index: 2;
-        }
-    `;
-    document.head.appendChild(style);
-    
-    // Listen for window resize to adjust calendar
-    window.addEventListener('resize', () => {
-        calendar.updateSize();
+    document.getElementById('nextMonth').addEventListener('click', () => {
+        currentDate.setMonth(currentDate.getMonth() + 1);
+        renderCalendar();
     });
-}
-
-// Separated holiday styling logic for better organization and reuse
-function addHolidayStyling(info) {
-    // Check for holidays
-    const date = info.date;
-    const holidayInfo = holidays.getHolidayInfo(date);
     
-    if (holidayInfo) {
-        // Create holiday indicator
-        const holidayEl = document.createElement('div');
-        holidayEl.className = 'holiday-indicator';
-        holidayEl.textContent = holidayInfo.icon;
-        holidayEl.style.color = holidayInfo.color;
-        holidayEl.title = holidayInfo.name;
-        
-        // Create inner colored border instead of using the cell border
-        const holidayBorder = document.createElement('div');
-        holidayBorder.className = 'holiday-border';
-        holidayBorder.style.borderColor = holidayInfo.color;
-        
-        // Add the elements to the cell
-        info.el.classList.add('holiday');
-        info.el.appendChild(holidayBorder);
-        info.el.appendChild(holidayEl);
-        
-        // Add tooltip functionality
-        info.el.setAttribute('data-holiday', holidayInfo.name);
-    }
-    
-    // Check if today
-    const today = new Date();
-    if (date.getDate() === today.getDate() && 
-        date.getMonth() === today.getMonth() && 
-        date.getFullYear() === today.getFullYear()) {
-        info.el.classList.add('today');
-    }
-}
-
-// Expose functions needed by other modules
-function renderCalendar() {
-    // FullCalendar handles rendering internally
-    if (calendar) {
-        calendar.today(); // Go to today
-        calendar.render();
-    }
+    renderCalendar();
 }
